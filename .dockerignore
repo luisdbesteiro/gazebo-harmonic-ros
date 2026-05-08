@@ -1,0 +1,50 @@
+.git/
+.codex/
+
+# Local runtime state
+gazebo_config/*
+!gazebo_config/.gitkeep
+
+# ROS 2 / colcon generated files
+**/build/
+**/install/
+**/log/
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+*.asc
+*.gpg
+credentials.json
+token.json
+secrets.json
+secret.json
+openai_api_key.txt
+api_key.txt
+config.local.json
+config.private.json
+*.local
+*.private
+
+# Heavy generated artifacts
+*.bag
+*.bag2
+*.db3
+*.sqlite
+*.sqlite3
+*.log
+*.mp4
+*.avi
+*.mkv
+*.zip
+*.7z
+*.rar
+workspace/results/raw/

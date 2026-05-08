@@ -1,0 +1,10 @@
+*.STL binary
+*.stl binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.bag binary
+*.bag2 binary
+*.db3 binary
+*.sqlite binary
+*.sqlite3 binary

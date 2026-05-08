@@ -1,0 +1,185 @@
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/g1/joint_states"
+  gz_topic_name: "/g1/joint_states"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/g1/cmd_pos/left_hip_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/left_hip_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_hip_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/left_hip_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_hip_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/left_hip_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_knee_joint"
+  gz_topic_name: "/g1/cmd_pos/left_knee_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_ankle_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/left_ankle_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_ankle_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/left_ankle_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_hip_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/right_hip_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_hip_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/right_hip_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_hip_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/right_hip_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_knee_joint"
+  gz_topic_name: "/g1/cmd_pos/right_knee_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_ankle_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/right_ankle_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_ankle_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/right_ankle_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/waist_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/waist_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/waist_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/waist_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/waist_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/waist_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_shoulder_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/left_shoulder_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_shoulder_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/left_shoulder_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_shoulder_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/left_shoulder_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_elbow_joint"
+  gz_topic_name: "/g1/cmd_pos/left_elbow_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_wrist_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/left_wrist_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_wrist_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/left_wrist_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/left_wrist_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/left_wrist_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_shoulder_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/right_shoulder_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_shoulder_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/right_shoulder_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_shoulder_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/right_shoulder_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_elbow_joint"
+  gz_topic_name: "/g1/cmd_pos/right_elbow_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_wrist_roll_joint"
+  gz_topic_name: "/g1/cmd_pos/right_wrist_roll_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_wrist_pitch_joint"
+  gz_topic_name: "/g1/cmd_pos/right_wrist_pitch_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/g1/cmd_pos/right_wrist_yaw_joint"
+  gz_topic_name: "/g1/cmd_pos/right_wrist_yaw_joint"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ

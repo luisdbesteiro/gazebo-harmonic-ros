@@ -1,0 +1,41 @@
+services:
+  gazebo_harmonic_ros2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: local/gazebo-harmonic-ros2:humble
+    container_name: gazebo_harmonic_ros2
+
+    stdin_open: true
+    tty: true
+
+    # Facilita ROS 2 DDS, Gazebo Transport y GUI.
+    # No instala nada en el host.
+    network_mode: host
+
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-root
+
+      # Dominio ROS separado para que no se mezcle accidentalmente
+      # con tus nodos ROS 2 Humble del host.
+      - ROS_DOMAIN_ID=42
+
+      # Rutas de modelos y recursos de Gazebo Harmonic dentro del contenedor
+      - GZ_SIM_RESOURCE_PATH=/workspace/models:/workspace/worlds
+
+    volumes:
+      # GUI X11
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+      # Workspace aislado
+      - ./workspace:/workspace
+
+      # Config/cache propia de Gazebo Harmonic, separada de ~/.gazebo del host
+      - ./gazebo_config:/root/.gz
+
+    working_dir: /workspace
+
+    command: bash

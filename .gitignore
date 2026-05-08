@@ -1,0 +1,134 @@
+# =========================
+# Local assistant / machine state
+# =========================
+.codex/
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# ROS 2 / colcon
+# =========================
+**/build/
+**/install/
+**/log/
+.log/
+*.log
+
+# =========================
+# Gazebo / Ignition
+# =========================
+*.bag
+*.db3
+*.sqlite3
+*.sqlite
+*.state
+*.log
+.gzserver
+.gzclient
+.gazebo/
+.ignition/
+.sdf.tmp
+
+# Gazebo runtime state mounted from the container.
+# Keep reproducible models/worlds in workspace/models and workspace/worlds.
+gazebo_config/*
+!gazebo_config/.gitkeep
+
+# Downloaded Fuel assets and signed URLs can appear in logs/cache.
+**/fuel/
+**/sim/log/
+**/rendering/
+
+# =========================
+# Docker
+# =========================
+*.tar
+*.tar.gz
+*.img
+
+# =========================
+# Environment / secrets
+# =========================
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+*.asc
+*.gpg
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+known_hosts
+
+# =========================
+# API keys / credentials
+# =========================
+credentials.json
+token.json
+secrets.json
+secret.json
+openai_api_key.txt
+api_key.txt
+config.local.json
+config.private.json
+*.local
+*.private
+
+# =========================
+# IDE / OS
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Large/generated files
+# =========================
+*.zip
+*.7z
+*.rar
+*.mp4
+*.avi
+*.mkv
+*.bag
+*.bag2
+*.db3
+
+# Results: commit only curated, sanitized summaries in workspace/results.
+workspace/results/raw/
+workspace/results/**/*.bag
+workspace/results/**/*.bag2
+workspace/results/**/*.db3
+workspace/results/**/*.sqlite
+workspace/results/**/*.sqlite3
+workspace/results/**/*.log
+workspace/results/**/*.mp4
+workspace/results/**/*.mkv
+workspace/results/**/*.avi
