@@ -28,6 +28,9 @@ ENV/
 .log/
 *.log
 
+# Secondary local workspace not used by this repo's canonical layout.
+workspace/ros2_ws/
+
 # =========================
 # Gazebo / Ignition
 # =========================
