@@ -22,10 +22,13 @@ El objetivo es reproducir simulaciones del robot Unitree G1 manteniendo separado
 └── workspace/
     ├── bridge.yaml
     ├── g1_bridge.yaml
+    ├── g1_velocity_bridge.yaml
     ├── G1_LOW_LEVEL.md
+    ├── G1_LOW_LEVEL_VELOCITY.md
     ├── models/
     │   ├── g1_description/
     │   ├── g1_29dof_low_level_control/
+    │   ├── g1_29dof_low_level_velocity_control/
     │   └── simple_box_robot/
     ├── results/
     ├── ros2_gz_ws/
@@ -61,6 +64,12 @@ Ejecutar Gazebo con el mundo de bajo nivel del G1:
 gz sim /workspace/worlds/g1_low_level.world.sdf
 ```
 
+Ejecutar la variante de control por velocidad articular:
+
+```bash
+gz sim /workspace/worlds/g1_low_level_velocity.world.sdf
+```
+
 Listar topics de Gazebo:
 
 ```bash
@@ -77,6 +86,12 @@ Levantar un bridge ROS 2/Gazebo usando la configuracion del workspace:
 
 ```bash
 ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspace/g1_bridge.yaml
+```
+
+Para la variante de velocidad articular:
+
+```bash
+ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspace/g1_velocity_bridge.yaml
 ```
 
 Si se crean paquetes ROS 2 nuevos, deben vivir en:

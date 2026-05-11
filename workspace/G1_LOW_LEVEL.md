@@ -3,6 +3,9 @@
 This setup uses the official Unitree `g1_29dof_rev_1_0.urdf` as source data and
 adds a Gazebo Harmonic SDF variant for isolated joint-position experiments.
 
+For joint-velocity experiments, use the separate setup documented in
+`/workspace/G1_LOW_LEVEL_VELOCITY.md`.
+
 The official description remains in:
 
 ```bash

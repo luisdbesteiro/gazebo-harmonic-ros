@@ -2,7 +2,7 @@
 
 Este proyecto debe mantenerse aislado dentro de:
 
-`~/docker/gazebo-harmonic-ros/`
+`~/jderobot/gazebo-harmonic-ros/`
 
 ## Reglas obligatorias
 
