@@ -6,7 +6,7 @@ Este repositorio esta preparado para publicar solo los archivos necesarios para 
 
 - Archivos `.env`, claves privadas, certificados, tokens o credenciales.
 - `gazebo_config/`: contiene estado local, cache de Gazebo/Fuel y logs. Los logs pueden incluir URLs firmadas temporales.
-- `workspace/ros2_gz_ws/build/`, `workspace/ros2_gz_ws/install/` y `workspace/ros2_gz_ws/log/`.
+- `workspace/ros2_ws/build/`, `workspace/ros2_ws/install/` y `workspace/ros2_ws/log/`.
 - Bolsas ROS, bases de datos SQLite, videos y resultados brutos pesados salvo que esten anonimizados y sean intencionales.
 
 ## Antes de subir
