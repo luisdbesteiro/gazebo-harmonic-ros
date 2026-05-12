@@ -139,27 +139,5 @@ cd /workspace/ros2_ws
 colcon build --symlink-install
 ```
 
-## Datos versionados
 
-Se versionan:
-
-- `Dockerfile` y `docker-compose.yml`
-- documentacion del proyecto
-- mundos en `workspace/worlds/`
-- modelos y mallas en `workspace/models/`
-- configuraciones de bridge en `workspace/bridges/`
-- codigo ROS 2 en `workspace/ros2_ws/src/`
-- resultados curados en `workspace/results/`
-
-No se versionan caches, logs ni estado local generado por Gazebo o colcon.
-
-## Seguridad antes de publicar
-
-Antes de hacer `git push`, revisa:
-
-```bash
-git ls-files --cached --others --exclude-standard -z | xargs -0 rg -n -i "(api[_-]?key|secret|token|password|passwd|private[_-]?key|authorization|bearer|credential|client[_-]?secret|BEGIN (RSA|OPENSSH|PRIVATE)|ghp_|github_pat_|sk-[A-Za-z0-9])"
-git status --ignored --short
-```
-
-Mas detalles en [SECURITY.md](SECURITY.md).
+Detalles de seguridad en la subida en [SECURITY.md](SECURITY.md).
