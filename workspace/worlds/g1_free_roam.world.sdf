@@ -8,8 +8,13 @@
       <render_engine>ogre2</render_engine>
     </plugin>
 
-    <gravity>0 0 0</gravity>
-    <magnetic_field>0 0 0</magnetic_field>
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <gravity>0 0 -9.81</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type="adiabatic"/>
 
     <light type="directional" name="sun">
@@ -20,10 +25,45 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
     <include>
       <uri>model://g1_29dof</uri>
       <name>g1</name>
-      <pose>0 0 1.0 0 0 0</pose>
+      <pose>0 0 0.8 0 0 0</pose>
     </include>
   </world>
 </sdf>

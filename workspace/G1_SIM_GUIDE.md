@@ -71,7 +71,7 @@ Volver cerca de cero:
 ros2 topic pub --once /g1/cmd_pos/left_shoulder_pitch_joint std_msgs/msg/Float64 "{data: 0.0}"
 ```
 
-### Base libre en microgravedad
+### Base libre
 
 En una shell dentro del contenedor:
 
@@ -85,7 +85,7 @@ En otra shell dentro del contenedor:
 ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspace/bridges/g1_vel_bridge.yaml
 ```
 
-Esta variante deja la base libre y pone gravedad cero. Es util para control articular o experimentos de red neuronal sin contacto con el suelo.
+Esta variante deja la base libre en un mundo plano con gravedad y contactos. Es util para pruebas de control y experimentos de red neuronal en condiciones realistas.
 
 ## Topics expuestos
 
@@ -95,13 +95,13 @@ Todos los perfiles del G1 publican:
 /g1/joint_states
 ```
 
-La demo de velocidad y la base libre usan:
+El bridge de velocidad configura:
 
 ```text
 /g1/cmd_vel/<joint_name>
 ```
 
-La demo de posicion usa:
+El bridge de velocidad configura:
 
 ```text
 /g1/cmd_pos/<joint_name>
@@ -114,19 +114,19 @@ Si prefieres `ros2 launch`:
 ```bash
 cd /workspace/ros2_ws
 source /workspace/ros2_ws/install/setup.bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py world:=g1_demo_vel robot_model:=g1_demo_vel bridge_config:=auto
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_vel
 ```
 
 Ejemplo para posicion:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py world:=g1_demo_pos robot_model:=g1_demo_pos bridge_config:=auto
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_pos
 ```
 
 Ejemplo para base libre:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py world:=g1_free_roam robot_model:=g1_free_roam bridge_config:=auto
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_free_roam
 ```
 
 ## Diagnostico rapido
