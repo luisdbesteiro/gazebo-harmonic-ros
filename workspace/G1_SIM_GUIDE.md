@@ -45,6 +45,11 @@ Pararla:
 ros2 topic pub --once /g1/cmd_vel/left_shoulder_pitch_joint std_msgs/msg/Float64 "{data: 0.0}"
 ```
 
+Nodo para ejecutar una secuencia de movimientos de ejemplo:
+```bash
+ros2 run g1_sim_bringup demo_cmd_vel_movements 
+```
+
 ### Demo fija con control por posicion
 
 En una shell dentro del contenedor:
