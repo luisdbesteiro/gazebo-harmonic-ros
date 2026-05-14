@@ -26,6 +26,25 @@
           <ambient>0.25 0.25 0.25 1</ambient>
         </material>
       </visual>
+      <sensor name='pelvis_imu' type='imu'>
+        <pose>0.045249999999999999 0 -0.083390000000000006 0 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>400</update_rate>
+        <topic>/g1/imu/pelvis</topic>
+        <visualize>false</visualize>
+        <imu>
+          <angular_velocity>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
     </link>
     <joint name='pelvis_contour_joint' type='fixed'>
       <pose relative_to='pelvis'>0 0 0 0 0 0</pose>
@@ -925,6 +944,25 @@
           <ambient>0.875 0.875 0.875 1</ambient>
         </material>
       </visual>
+      <sensor name='torso_imu' type='imu'>
+        <pose>-0.03959 -0.0022399999999999998 0.14792 0 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>400</update_rate>
+        <topic>/g1/imu/torso</topic>
+        <visualize>false</visualize>
+        <imu>
+          <angular_velocity>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
     </link>
     <joint name='logo_joint' type='fixed'>
       <pose relative_to='torso_link'>0.0039635 0 -0.043999999999999997 0 0 0</pose>

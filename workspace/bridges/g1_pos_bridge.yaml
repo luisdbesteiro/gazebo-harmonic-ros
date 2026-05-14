@@ -10,6 +10,18 @@
   gz_type_name: "gz.msgs.Model"
   direction: GZ_TO_ROS
 
+- ros_topic_name: "/g1/imu/pelvis"
+  gz_topic_name: "/g1/imu/pelvis"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/g1/imu/torso"
+  gz_topic_name: "/g1/imu/torso"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
 - ros_topic_name: "/g1/cmd_pos/left_hip_pitch_joint"
   gz_topic_name: "/g1/cmd_pos/left_hip_pitch_joint"
   ros_type_name: "std_msgs/msg/Float64"

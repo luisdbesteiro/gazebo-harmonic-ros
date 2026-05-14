@@ -53,6 +53,25 @@
           <ambient>0.875 0.875 0.875 1</ambient>
         </material>
       </visual>
+      <sensor name='pelvis_imu' type='imu'>
+        <pose>0.045249999999999999 0 -0.083390000000000006 0 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>400</update_rate>
+        <topic>/g1/imu/pelvis</topic>
+        <visualize>false</visualize>
+        <imu>
+          <angular_velocity>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
     </link>
     <joint name='left_hip_pitch_joint' type='revolute'>
       <pose relative_to='pelvis'>0 0.064451999999999995 -0.1027 0 0 0</pose>
@@ -954,6 +973,25 @@
           <ambient>0.25 0.25 0.25 1</ambient>
         </material>
       </visual>
+      <sensor name='torso_imu' type='imu'>
+        <pose>-0.03959 -0.0022399999999999998 0.14792 0 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>400</update_rate>
+        <topic>/g1/imu/torso</topic>
+        <visualize>false</visualize>
+        <imu>
+          <angular_velocity>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.0005</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></x>
+            <y><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></y>
+            <z><noise type='gaussian'><mean>0</mean><stddev>0.01</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
     </link>
     <joint name='left_shoulder_pitch_joint' type='revolute'>
       <pose relative_to='torso_link'>0.0039563000000000003 0.10022 0.24778 0.27931000000000011 5.4949000000000032e-05 -0.00019159</pose>

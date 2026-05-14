@@ -93,6 +93,8 @@ Todos los perfiles del G1 publican:
 
 ```text
 /g1/joint_states
+/g1/imu/pelvis
+/g1/imu/torso
 ```
 
 El bridge de velocidad configura:
@@ -101,7 +103,7 @@ El bridge de velocidad configura:
 /g1/cmd_vel/<joint_name>
 ```
 
-El bridge de velocidad configura:
+El bridge de posicion configura:
 
 ```text
 /g1/cmd_pos/<joint_name>
