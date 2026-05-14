@@ -27,6 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
             'sim_and_bridge = g1_sim_bringup.sim_and_bridge:main',
+            'demo_cmd_vel_movements = g1_sim_bringup.demo_cmd_vel_movements:main',
+            'demo_cmd_vel_movements2 = g1_sim_bringup.demo_cmd_vel_movements2:main',
         ],
     },
 )
