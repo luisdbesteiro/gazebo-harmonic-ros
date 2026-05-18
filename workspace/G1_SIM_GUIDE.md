@@ -6,7 +6,7 @@ Esta guia resume el estado actual de las simulaciones del Unitree G1 en este pro
 
 | Perfil | Mundo | Modelo | Control | Bridge |
 | --- | --- | --- | --- | --- |
-| Base libre | `/workspace/worlds/g1_free_roam.world.sdf` | `model://g1_29dof` | velocidad | `/workspace/bridges/g1_vel_bridge.yaml` |
+| Base libre | `/workspace/worlds/g1_free_roam.world.sdf` | `model://g1_29dof` | posicion | `/workspace/bridges/g1_pos_bridge.yaml` |
 | Demo fija velocidad | `/workspace/worlds/g1_demo_cmd_vel.world.sdf` | `model://g1_demo_cmd_vel` | velocidad | `/workspace/bridges/g1_vel_bridge.yaml` |
 | Demo fija posicion | `/workspace/worlds/g1_demo_cmd_pos.world.sdf` | `model://g1_demo_cmd_pos` | posicion | `/workspace/bridges/g1_pos_bridge.yaml` |
 
@@ -87,10 +87,11 @@ gz sim /workspace/worlds/g1_free_roam.world.sdf
 En otra shell dentro del contenedor:
 
 ```bash
-ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspace/bridges/g1_vel_bridge.yaml
+ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspace/bridges/g1_pos_bridge.yaml
 ```
 
 Esta variante deja la base libre en un mundo plano con gravedad y contactos. Es util para pruebas de control y experimentos de red neuronal en condiciones realistas.
+Los comandos articulares entran ahora por `/g1/cmd_pos/<joint_name>`.
 
 ## Topics expuestos
 

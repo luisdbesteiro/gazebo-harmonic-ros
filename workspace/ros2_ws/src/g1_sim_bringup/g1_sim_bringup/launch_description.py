@@ -50,13 +50,13 @@ def _resolve_bridge_config(bridge_config, robot_model):
     if robot_model is None:
         return BRIDGE_ALIASES['clock']
 
-    if robot_model == ROBOT_ALIASES['g1_demo_pos']:
-        return BRIDGE_ALIASES['g1_pos']
-
     if robot_model in (
-        ROBOT_ALIASES['g1_demo_vel'],
+        ROBOT_ALIASES['g1_demo_pos'],
         ROBOT_ALIASES['g1_free_roam'],
     ):
+        return BRIDGE_ALIASES['g1_pos']
+
+    if robot_model == ROBOT_ALIASES['g1_demo_vel']:
         return BRIDGE_ALIASES['g1_vel']
 
     raise ValueError(
@@ -69,6 +69,9 @@ def create_runtime_actions(
     world,
     robot_model,
     bridge_config,
+    spawn_x,
+    spawn_y,
+    spawn_z,
     gui,
     run,
     use_software_rendering,
@@ -115,11 +118,11 @@ def create_runtime_actions(
                             '-name',
                             'g1',
                             '-x',
-                            '0',
+                            str(spawn_x),
                             '-y',
-                            '0',
+                            str(spawn_y),
                             '-z',
-                            '1.20',
+                            str(spawn_z),
                         ],
                         output='screen',
                     )
@@ -165,6 +168,9 @@ def _create_runtime_actions_from_launch_args(context):
             LaunchConfiguration('bridge_config').perform(context),
             robot_model,
         ),
+        spawn_x=LaunchConfiguration('spawn_x').perform(context),
+        spawn_y=LaunchConfiguration('spawn_y').perform(context),
+        spawn_z=LaunchConfiguration('spawn_z').perform(context),
         gui=_as_bool(LaunchConfiguration('gui').perform(context)),
         run=_as_bool(LaunchConfiguration('run').perform(context)),
         use_software_rendering=_as_bool(
@@ -191,6 +197,21 @@ def create_launch_description():
                 'bridge_config',
                 default_value='auto',
                 description='Bridge YAML path, or auto to infer it from robot_model.',
+            ),
+            DeclareLaunchArgument(
+                'spawn_x',
+                default_value='0.0',
+                description='Robot spawn X coordinate.',
+            ),
+            DeclareLaunchArgument(
+                'spawn_y',
+                default_value='0.0',
+                description='Robot spawn Y coordinate.',
+            ),
+            DeclareLaunchArgument(
+                'spawn_z',
+                default_value='0.80',
+                description='Robot spawn Z coordinate.',
             ),
             DeclareLaunchArgument(
                 'gui',

@@ -12,7 +12,7 @@ El repositorio mantiene separados:
 
 El workspace contiene tres variantes principales del Unitree G1:
 
-- `g1_29dof`: base libre en microgravedad, control por velocidad
+- `g1_29dof`: base libre en microgravedad, control por posicion
 - `g1_demo_cmd_vel`: pelvis fija al mundo, control por velocidad
 - `g1_demo_cmd_pos`: pelvis fija al mundo, control por posicion
 
