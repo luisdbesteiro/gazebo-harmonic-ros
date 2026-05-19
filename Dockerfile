@@ -32,11 +32,15 @@ RUN apt-get update && apt-get install -y \
     ros-humble-rviz2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Dependencias Python del proyecto dentro del contenedor
+RUN python3 -m pip install --no-cache-dir \
+    onnxruntime
+
 # Crear carpeta de trabajo
 WORKDIR /workspace
 
 # Auto-source de ROS en bash
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
-    echo "if [ -f /workspace/ros2_gz_ws/install/setup.bash ]; then source /workspace/ros2_gz_ws/install/setup.bash; fi" >> /root/.bashrc
+    echo "if [ -f /workspace/ros2_ws/install/setup.bash ]; then source /workspace/ros2_ws/install/setup.bash; fi" >> /root/.bashrc
 
 CMD ["bash"]
