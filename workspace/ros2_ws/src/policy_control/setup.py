@@ -26,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'observation_publisher = policy_control.observation_publisher:main',
+            'policy_inference = policy_control.policy_inference:main',
         ],
     },
 )

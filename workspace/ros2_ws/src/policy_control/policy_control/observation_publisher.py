@@ -4,7 +4,7 @@ from math import sqrt
 from typing import Optional
 
 import rclpy
-from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import Twist, TwistStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import Imu, JointState
@@ -66,7 +66,7 @@ class ObservationPublisher(Node):
         self.declare_parameter('pelvis_imu_topic', '/g1/imu/pelvis')
         self.declare_parameter('pelvis_odometry_topic', '/g1/pelvis/odometry')
         self.declare_parameter('pelvis_twist_topic', '/g1/pelvis_twist')
-        self.declare_parameter('command_topic', '/g1/policy_command')
+        self.declare_parameter('command_topic', '/cmd_vel')
         self.declare_parameter('last_action_topic', '/g1/last_action')
         self.declare_parameter('observation_topic', '/g1/observation')
         self.declare_parameter('publish_rate_hz', 50.0)
@@ -94,7 +94,7 @@ class ObservationPublisher(Node):
         self.create_subscription(Imu, pelvis_imu_topic, self._on_imu, 10)
         self.create_subscription(Odometry, pelvis_odometry_topic, self._on_pelvis_odometry, 10)
         self.create_subscription(TwistStamped, pelvis_twist_topic, self._on_pelvis_twist, 10)
-        self.create_subscription(Float64MultiArray, command_topic, self._on_command, 10)
+        self.create_subscription(Twist, command_topic, self._on_command, 10)
         self.create_subscription(Float64MultiArray, last_action_topic, self._on_last_action, 10)
 
         period = 1.0 / publish_rate_hz if publish_rate_hz > 0.0 else 0.02
@@ -118,13 +118,12 @@ class ObservationPublisher(Node):
     def _on_pelvis_twist(self, msg: TwistStamped) -> None:
         self._pelvis_twist = msg
 
-    def _on_command(self, msg: Float64MultiArray) -> None:
-        if len(msg.data) != COMMAND_DIM:
-            self.get_logger().warning(
-                f'Ignoring command with size {len(msg.data)}. Expected {COMMAND_DIM}.'
-            )
-            return
-        self._command = list(msg.data)
+    def _on_command(self, msg: Twist) -> None:
+        self._command = [
+            msg.linear.x,
+            msg.linear.y,
+            msg.angular.z,
+        ]
 
     def _on_last_action(self, msg: Float64MultiArray) -> None:
         if len(msg.data) != ACTION_DIM:

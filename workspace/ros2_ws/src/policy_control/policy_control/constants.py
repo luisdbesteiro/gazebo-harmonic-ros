@@ -65,6 +65,38 @@ DEFAULT_JOINT_POS = [
     0.0,     # right_wrist_yaw_joint
 ]
 
+ACTION_SCALE = [
+    0.49869924033661583,  # left_hip_pitch_joint
+    0.23391105917489544,  # left_hip_roll_joint
+    0.49869924033661583,  # left_hip_yaw_joint
+    0.23391105917489544,  # left_knee_joint
+    0.36295718076906824,  # left_ankle_pitch_joint
+    0.36295718076906824,  # left_ankle_roll_joint
+    0.49869924033661583,  # right_hip_pitch_joint
+    0.23391105917489544,  # right_hip_roll_joint
+    0.49869924033661583,  # right_hip_yaw_joint
+    0.23391105917489544,  # right_knee_joint
+    0.36295718076906824,  # right_ankle_pitch_joint
+    0.36295718076906824,  # right_ankle_roll_joint
+    0.49869924033661583,  # waist_yaw_joint
+    0.36295718076906824,  # waist_roll_joint
+    0.36295718076906824,  # waist_pitch_joint
+    0.36295718076906824,  # left_shoulder_pitch_joint
+    0.36295718076906824,  # left_shoulder_roll_joint
+    0.36295718076906824,  # left_shoulder_yaw_joint
+    0.36295718076906824,  # left_elbow_joint
+    0.36295718076906824,  # left_wrist_roll_joint
+    46.56304395328023,    # left_wrist_pitch_joint
+    46.56304395328023,    # left_wrist_yaw_joint
+    0.36295718076906824,  # right_shoulder_pitch_joint
+    0.36295718076906824,  # right_shoulder_roll_joint
+    0.36295718076906824,  # right_shoulder_yaw_joint
+    0.36295718076906824,  # right_elbow_joint
+    0.36295718076906824,  # right_wrist_roll_joint
+    46.56304395328023,    # right_wrist_pitch_joint
+    46.56304395328023,    # right_wrist_yaw_joint
+]
+
 OBSERVATION_DIM = 99
 ACTION_DIM = 29
 COMMAND_DIM = 3
