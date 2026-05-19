@@ -137,6 +137,14 @@ Ejemplo para base libre:
 ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_free_roam
 ```
 
+Si necesitas que la simulacion no empiece automaticamente al lanzar el bringup:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_free_roam run:=false
+```
+
+Con `run:=false`, Gazebo arranca en pausa y puedes iniciar la simulacion manualmente desde la GUI con Play cuando ya hayan arrancado el resto de nodos.
+
 ## Diagnostico rapido
 
 Comprobar topics de Gazebo:

@@ -118,6 +118,14 @@ Aliases soportados actualmente:
 - `robot_model:=none|g1_free_roam|g1_demo_vel|g1_demo_pos`
 - `bridge_config:=auto|clock|g1_vel|g1_pos|/ruta/a/archivo.yaml`
 
+Si quieres que Gazebo arranque cargado pero en pausa, para tener tiempo de levantar otros nodos antes de empezar la fisica:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
+```
+
+En ese caso la simulacion queda lista y puedes arrancarla despues desde la GUI con el boton Play.
+
 ## Modelos y mundos
 
 Consulta [workspace/G1_SIM_GUIDE.md](/home/luis/jderobot/gazebo-harmonic-ros/workspace/G1_SIM_GUIDE.md:1) para ver la matriz completa modelo-mundo-bridge y ejemplos de control por velocidad y posicion.
