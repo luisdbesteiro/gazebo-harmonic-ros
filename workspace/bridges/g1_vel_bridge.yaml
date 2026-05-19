@@ -22,6 +22,12 @@
   gz_type_name: "gz.msgs.IMU"
   direction: GZ_TO_ROS
 
+- ros_topic_name: "/g1/pelvis/odometry"
+  gz_topic_name: "/g1/pelvis/odometry"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
 - ros_topic_name: "/g1/cmd_vel/left_hip_pitch_joint"
   gz_topic_name: "/g1/cmd_vel/left_hip_pitch_joint"
   ros_type_name: "std_msgs/msg/Float64"

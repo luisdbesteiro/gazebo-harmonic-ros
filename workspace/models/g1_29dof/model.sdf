@@ -1940,6 +1940,14 @@
       <joint_name>right_wrist_pitch_joint</joint_name>
       <joint_name>right_wrist_yaw_joint</joint_name>
     </plugin>
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <dimensions>3</dimensions>
+      <odom_frame>g1/odom</odom_frame>
+      <robot_base_frame>pelvis</robot_base_frame>
+      <odom_publish_frequency>400</odom_publish_frequency>
+      <odom_topic>/g1/pelvis/odometry</odom_topic>
+      <xyz_offset>0.04525 0 -0.08339</xyz_offset>
+    </plugin>
 
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_pitch_joint</joint_name><topic>/g1/cmd_pos/left_hip_pitch_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_roll_joint</joint_name><topic>/g1/cmd_pos/left_hip_roll_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
