@@ -21,6 +21,7 @@ def default_onnx_path() -> str:
     candidate_suffix = Path(
         'workspace/results/raw/2025-tfg-diego-lopez/pruebas/G1/2026-01-26_10-42-02.onnx'
     )
+    # Walk up from the installed module so this still works after colcon install.
     for parent in Path(__file__).resolve().parents:
         candidate = parent / candidate_suffix
         if candidate.exists():
@@ -38,7 +39,6 @@ class PolicyInference(Node):
         self.declare_parameter('last_action_topic', '/g1/last_action')
         self.declare_parameter('cmd_pos_prefix', '/g1/cmd_pos')
         self.declare_parameter('onnx_model_path', default_onnx_path())
-        self.declare_parameter('inference_rate_hz', 50.0)
         self.declare_parameter('clip_action', False)
         self.declare_parameter('action_clip_min', -100.0)
         self.declare_parameter('action_clip_max', 100.0)
@@ -47,7 +47,6 @@ class PolicyInference(Node):
         last_action_topic = self.get_parameter('last_action_topic').get_parameter_value().string_value
         cmd_pos_prefix = self.get_parameter('cmd_pos_prefix').get_parameter_value().string_value.rstrip('/')
         onnx_model_path = self.get_parameter('onnx_model_path').get_parameter_value().string_value
-        inference_rate_hz = self.get_parameter('inference_rate_hz').get_parameter_value().double_value
         self._clip_action = self.get_parameter('clip_action').get_parameter_value().bool_value
         self._action_clip_min = (
             self.get_parameter('action_clip_min').get_parameter_value().double_value
@@ -71,9 +70,6 @@ class PolicyInference(Node):
             self._on_observation,
             10,
         )
-
-        period = 1.0 / inference_rate_hz if inference_rate_hz > 0.0 else 0.02
-        self.create_timer(period, self._run_inference)
 
         self._default_joint_pos = np.asarray(DEFAULT_JOINT_POS, dtype=np.float32)
         self._action_scale = np.asarray(ACTION_SCALE, dtype=np.float32)
@@ -111,11 +107,15 @@ class PolicyInference(Node):
             return
 
         self._last_observation = np.asarray(msg.data, dtype=np.float32)
+        # The observation is already published from simulation clock ticks, so inference
+        # can run directly on each new message without using wall-time timers.
+        self._run_inference()
 
     def _run_inference(self) -> None:
         if self._last_observation is None:
             return
 
+        # The ONNX policy expects a single batch item with shape [1, 99].
         raw_action = self._session.run(
             [self._output_name],
             {self._input_name: self._last_observation[None, :]},
@@ -130,12 +130,14 @@ class PolicyInference(Node):
         if self._clip_action:
             raw_action = np.clip(raw_action, self._action_clip_min, self._action_clip_max)
 
+        # Mirror MuJoCo: last_action stores raw policy output, while cmd_pos uses scaled offsets.
         joint_targets = self._default_joint_pos + raw_action * self._action_scale
 
         last_action_msg = Float64MultiArray()
         last_action_msg.data = raw_action.astype(np.float64).tolist()
         self._last_action_publisher.publish(last_action_msg)
 
+        # Publish in the same joint order used to build the observation and action vectors.
         for joint_name, joint_target in zip(JOINT_ORDER, joint_targets):
             joint_msg = Float64()
             joint_msg.data = float(joint_target)

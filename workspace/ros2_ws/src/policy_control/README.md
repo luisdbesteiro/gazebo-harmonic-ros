@@ -18,6 +18,7 @@ El nodo `observation_publisher`:
 - subscribe a `/g1/joint_states`
 - subscribe a `/g1/imu/pelvis`
 - subscribe a `/g1/pelvis/odometry`
+- subscribe a `/clock`
 - subscribe a `/cmd_vel`
 - subscribe a `/g1/last_action`
 - subscribe opcionalmente a `/g1/pelvis_twist`
@@ -29,6 +30,13 @@ El nodo `policy_inference`:
 - carga la politica ONNX
 - publica `last_action` en `/g1/last_action`
 - publica objetivos articulares en `/g1/cmd_pos/<joint_name>`
+
+El lazo ya no depende de timers de reloj de pared:
+
+- `observation_publisher` publica solo cuando avanza `/clock`
+- `policy_inference` hace inferencia al recibir cada observacion nueva
+
+Esto evita que la politica siga iterando mientras Gazebo esta en pausa con `run:=false`.
 
 La semantica del control replica la referencia MuJoCo:
 
@@ -106,6 +114,7 @@ Entradas:
 - `/cmd_vel`
 - `/g1/last_action`
 - `/g1/observation`
+- `/clock`
 
 Salida:
 

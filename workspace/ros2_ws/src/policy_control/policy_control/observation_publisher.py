@@ -7,6 +7,7 @@ import rclpy
 from geometry_msgs.msg import Twist, TwistStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
+from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, JointState
 from std_msgs.msg import Float64MultiArray
 
@@ -49,6 +50,7 @@ def project_gravity_from_quaternion(x: float, y: float, z: float, w: float) -> l
     """Project world gravity into the pelvis frame."""
     rot = quaternion_to_rotation_matrix(x, y, z, w)
     gravity_world = [0.0, 0.0, -1.0]
+    # Match the MuJoCo observation, which uses gravity expressed in pelvis coordinates.
     return [
         rot[0][0] * gravity_world[0] + rot[1][0] * gravity_world[1] + rot[2][0] * gravity_world[2],
         rot[0][1] * gravity_world[0] + rot[1][1] * gravity_world[1] + rot[2][1] * gravity_world[2],
@@ -69,6 +71,7 @@ class ObservationPublisher(Node):
         self.declare_parameter('command_topic', '/cmd_vel')
         self.declare_parameter('last_action_topic', '/g1/last_action')
         self.declare_parameter('observation_topic', '/g1/observation')
+        self.declare_parameter('clock_topic', '/clock')
         self.declare_parameter('publish_rate_hz', 50.0)
 
         joint_state_topic = self.get_parameter('joint_state_topic').get_parameter_value().string_value
@@ -78,6 +81,7 @@ class ObservationPublisher(Node):
         command_topic = self.get_parameter('command_topic').get_parameter_value().string_value
         last_action_topic = self.get_parameter('last_action_topic').get_parameter_value().string_value
         observation_topic = self.get_parameter('observation_topic').get_parameter_value().string_value
+        clock_topic = self.get_parameter('clock_topic').get_parameter_value().string_value
         publish_rate_hz = self.get_parameter('publish_rate_hz').get_parameter_value().double_value
 
         self._joint_state: Optional[JointState] = None
@@ -87,6 +91,8 @@ class ObservationPublisher(Node):
         self._command = [0.0] * COMMAND_DIM
         self._last_action = [0.0] * ACTION_DIM
         self._missing_linear_velocity_warned = False
+        self._last_publish_time_ns: Optional[int] = None
+        self._publish_period_ns = int(1e9 / publish_rate_hz) if publish_rate_hz > 0.0 else 20_000_000
 
         self._observation_publisher = self.create_publisher(Float64MultiArray, observation_topic, 10)
 
@@ -96,14 +102,12 @@ class ObservationPublisher(Node):
         self.create_subscription(TwistStamped, pelvis_twist_topic, self._on_pelvis_twist, 10)
         self.create_subscription(Twist, command_topic, self._on_command, 10)
         self.create_subscription(Float64MultiArray, last_action_topic, self._on_last_action, 10)
-
-        period = 1.0 / publish_rate_hz if publish_rate_hz > 0.0 else 0.02
-        self.create_timer(period, self._publish_observation)
+        self.create_subscription(Clock, clock_topic, self._on_clock, 10)
 
         self.get_logger().info(
             'observation_publisher ready. '
-            'It publishes obs[99] in MuJoCo joint order and uses pelvis linear velocity from '
-            f'{pelvis_odometry_topic} (fallback: {pelvis_twist_topic}).'
+            'It publishes obs[99] in MuJoCo joint order on simulation clock ticks and uses '
+            f'pelvis linear velocity from {pelvis_odometry_topic} (fallback: {pelvis_twist_topic}).'
         )
 
     def _on_joint_state(self, msg: JointState) -> None:
@@ -119,6 +123,7 @@ class ObservationPublisher(Node):
         self._pelvis_twist = msg
 
     def _on_command(self, msg: Twist) -> None:
+        # The policy command is [vx, vy, wz], not the full Twist message.
         self._command = [
             msg.linear.x,
             msg.linear.y,
@@ -132,6 +137,17 @@ class ObservationPublisher(Node):
             )
             return
         self._last_action = list(msg.data)
+
+    def _on_clock(self, msg: Clock) -> None:
+        current_time_ns = msg.clock.sec * 1_000_000_000 + msg.clock.nanosec
+        if self._last_publish_time_ns is not None:
+            if current_time_ns <= self._last_publish_time_ns:
+                return
+            if current_time_ns - self._last_publish_time_ns < self._publish_period_ns:
+                return
+
+        self._last_publish_time_ns = current_time_ns
+        self._publish_observation()
 
     def _ordered_joint_values(self) -> Optional[tuple[list[float], list[float]]]:
         if self._joint_state is None:
@@ -156,6 +172,7 @@ class ObservationPublisher(Node):
             self.get_logger().warning(f'Missing joints in JointState: {missing}')
             return None
 
+        # Reorder Gazebo joint states into the exact MuJoCo / policy joint order.
         ordered_pos = [position_map[name] for name in JOINT_ORDER]
         ordered_vel = [velocity_map.get(name, 0.0) for name in JOINT_ORDER]
         return ordered_pos, ordered_vel
@@ -169,6 +186,7 @@ class ObservationPublisher(Node):
             return
 
         ordered_pos, ordered_vel = ordered
+        # MuJoCo feeds joint positions relative to the default knees-bent pose.
         qpos_rel = [pos - default for pos, default in zip(ordered_pos, DEFAULT_JOINT_POS)]
 
         if self._pelvis_odometry is not None:
@@ -206,6 +224,7 @@ class ObservationPublisher(Node):
             self._imu.orientation.w,
         )
 
+        # Keep the 99D layout identical to the MuJoCo rollout code.
         observation = (
             linear_velocity
             + angular_velocity
