@@ -6,6 +6,7 @@ from typing import Optional
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rosgraph_msgs.msg import Clock
 from std_msgs.msg import Float64, Float64MultiArray
 
 from .constants import ACTION_DIM, ACTION_SCALE, DEFAULT_JOINT_POS, JOINT_ORDER, OBSERVATION_DIM
@@ -39,14 +40,18 @@ class PolicyInference(Node):
         self.declare_parameter('last_action_topic', '/g1/last_action')
         self.declare_parameter('cmd_pos_prefix', '/g1/cmd_pos')
         self.declare_parameter('onnx_model_path', default_onnx_path())
+        self.declare_parameter('clock_topic', '/clock')
         self.declare_parameter('clip_action', False)
         self.declare_parameter('action_clip_min', -100.0)
         self.declare_parameter('action_clip_max', 100.0)
+        self.declare_parameter('action_scale_factor', 1.0)
+        self.declare_parameter('hold_nominal_pose_duration_s', 0.0)
 
         observation_topic = self.get_parameter('observation_topic').get_parameter_value().string_value
         last_action_topic = self.get_parameter('last_action_topic').get_parameter_value().string_value
         cmd_pos_prefix = self.get_parameter('cmd_pos_prefix').get_parameter_value().string_value.rstrip('/')
         onnx_model_path = self.get_parameter('onnx_model_path').get_parameter_value().string_value
+        clock_topic = self.get_parameter('clock_topic').get_parameter_value().string_value
         self._clip_action = self.get_parameter('clip_action').get_parameter_value().bool_value
         self._action_clip_min = (
             self.get_parameter('action_clip_min').get_parameter_value().double_value
@@ -54,9 +59,17 @@ class PolicyInference(Node):
         self._action_clip_max = (
             self.get_parameter('action_clip_max').get_parameter_value().double_value
         )
+        self._action_scale_factor = (
+            self.get_parameter('action_scale_factor').get_parameter_value().double_value
+        )
+        self._hold_nominal_pose_duration_ns = int(
+            self.get_parameter('hold_nominal_pose_duration_s').get_parameter_value().double_value * 1e9
+        )
 
         self._session, self._input_name, self._output_name = self._load_session(onnx_model_path)
         self._last_observation: Optional[np.ndarray] = None
+        self._current_sim_time_ns: Optional[int] = None
+        self._activation_sim_time_ns: Optional[int] = None
 
         self._last_action_publisher = self.create_publisher(Float64MultiArray, last_action_topic, 10)
         self._joint_publishers = {
@@ -70,6 +83,7 @@ class PolicyInference(Node):
             self._on_observation,
             10,
         )
+        self.create_subscription(Clock, clock_topic, self._on_clock, 10)
 
         self._default_joint_pos = np.asarray(DEFAULT_JOINT_POS, dtype=np.float32)
         self._action_scale = np.asarray(ACTION_SCALE, dtype=np.float32)
@@ -99,6 +113,9 @@ class PolicyInference(Node):
         output_name = session.get_outputs()[0].name
         return session, input_name, output_name
 
+    def _on_clock(self, msg: Clock) -> None:
+        self._current_sim_time_ns = msg.clock.sec * 1_000_000_000 + msg.clock.nanosec
+
     def _on_observation(self, msg: Float64MultiArray) -> None:
         if len(msg.data) != OBSERVATION_DIM:
             self.get_logger().warning(
@@ -111,8 +128,33 @@ class PolicyInference(Node):
         # can run directly on each new message without using wall-time timers.
         self._run_inference()
 
+    def _publish_targets(self, joint_targets: np.ndarray, last_action: np.ndarray) -> None:
+        last_action_msg = Float64MultiArray()
+        last_action_msg.data = last_action.astype(np.float64).tolist()
+        self._last_action_publisher.publish(last_action_msg)
+
+        # Publish in the same joint order used to build the observation and action vectors.
+        for joint_name, joint_target in zip(JOINT_ORDER, joint_targets):
+            joint_msg = Float64()
+            joint_msg.data = float(joint_target)
+            self._joint_publishers[joint_name].publish(joint_msg)
+
     def _run_inference(self) -> None:
         if self._last_observation is None:
+            return
+
+        if self._current_sim_time_ns is None:
+            return
+
+        if self._activation_sim_time_ns is None:
+            self._activation_sim_time_ns = self._current_sim_time_ns
+
+        if self._current_sim_time_ns - self._activation_sim_time_ns < self._hold_nominal_pose_duration_ns:
+            # Optional stabilization phase before enabling the policy.
+            self._publish_targets(
+                self._default_joint_pos,
+                np.zeros(ACTION_DIM, dtype=np.float32),
+            )
             return
 
         # The ONNX policy expects a single batch item with shape [1, 99].
@@ -131,17 +173,8 @@ class PolicyInference(Node):
             raw_action = np.clip(raw_action, self._action_clip_min, self._action_clip_max)
 
         # Mirror MuJoCo: last_action stores raw policy output, while cmd_pos uses scaled offsets.
-        joint_targets = self._default_joint_pos + raw_action * self._action_scale
-
-        last_action_msg = Float64MultiArray()
-        last_action_msg.data = raw_action.astype(np.float64).tolist()
-        self._last_action_publisher.publish(last_action_msg)
-
-        # Publish in the same joint order used to build the observation and action vectors.
-        for joint_name, joint_target in zip(JOINT_ORDER, joint_targets):
-            joint_msg = Float64()
-            joint_msg.data = float(joint_target)
-            self._joint_publishers[joint_name].publish(joint_msg)
+        joint_targets = self._default_joint_pos + raw_action * self._action_scale * self._action_scale_factor
+        self._publish_targets(joint_targets, raw_action)
 
 
 def main(args: Optional[list[str]] = None) -> None:
