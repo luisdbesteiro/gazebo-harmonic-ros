@@ -12,7 +12,7 @@ El repositorio mantiene separados:
 
 El workspace contiene tres variantes principales del Unitree G1:
 
-- `g1_29dof`: base libre en microgravedad, control por posicion
+- `g1_29dof`: base libre en mundo plano con gravedad, control por posicion
 - `g1_demo_cmd_vel`: pelvis fija al mundo, control por velocidad
 - `g1_demo_cmd_pos`: pelvis fija al mundo, control por posicion
 
@@ -48,7 +48,9 @@ Los bridges disponibles son:
     │   └── g1_description/
     ├── results/
     ├── ros2_ws/
-    │   └── src/g1_sim_bringup/
+    │   └── src/
+    │       ├── g1_sim_bringup/
+    │       └── policy_control/
     └── worlds/
 ```
 
@@ -102,6 +104,12 @@ ros2 topic list
 ## Bringup ROS 2
 
 El paquete `workspace/ros2_ws/src/g1_sim_bringup` ofrece un launch y un ejecutable para arrancar simulacion y bridge con aliases coherentes.
+
+El paquete `workspace/ros2_ws/src/policy_control` contiene los nodos para:
+
+- publicar `obs[99]`
+- ejecutar la politica ONNX
+- mantener una pose nominal para depuracion
 
 Ejemplo con `ros2 launch`:
 

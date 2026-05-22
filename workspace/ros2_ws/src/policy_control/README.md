@@ -27,6 +27,7 @@ El nodo `observation_publisher`:
 El nodo `policy_inference`:
 
 - subscribe a `/g1/observation`
+- subscribe a `/clock`
 - carga la politica ONNX
 - publica `last_action` en `/g1/last_action`
 - publica objetivos articulares en `/g1/cmd_pos/<joint_name>`
@@ -36,13 +37,18 @@ El lazo ya no depende de timers de reloj de pared:
 - `observation_publisher` publica solo cuando avanza `/clock`
 - `policy_inference` hace inferencia al recibir cada observacion nueva
 
-Esto evita que la politica siga iterando mientras Gazebo esta en pausa con `run:=false`.
+Esto evita que la politica siga iterando mientras Gazebo esta en pausa con `run:=false` y se ajusta a los cambios reales en la simulacion.
 
 La semantica del control replica la referencia MuJoCo:
 
 - `raw_action = policy(obs)`
 - `last_action = raw_action`
 - `joint_target = default_joint_pos + raw_action * action_scale`
+
+Opcionalmente, `policy_inference` permite dos mecanismos de depuracion:
+
+- `action_scale_factor`: factor global multiplicativo sobre `raw_action * action_scale`
+- `hold_nominal_pose_duration_s`: tiempo inicial en segundos de simulacion durante el que se publica solo `DEFAULT_JOINT_POS` y `last_action = 0`
 
 El orden de articulaciones y la pose nominal de referencia estan codificados en:
 
@@ -103,7 +109,7 @@ Si mas adelante hace falta una solucion mas fiel, hay dos caminos razonables:
 - mantener `OdometryPublisher` solo para validacion inicial de la politica
 - implementar un plugin o sensor custom que publique la velocidad lineal de pelvis en el frame del IMU, con el ruido y la dinamica que interese simular
 
-## Temas usados por defecto
+## Topics usados por defecto
 
 Entradas:
 
@@ -142,18 +148,57 @@ La ruta puede sobreescribirse con el parametro ROS `onnx_model_path`.
 
 El nodo requiere `onnxruntime` en el entorno Python del contenedor. Si no esta disponible, el nodo fallara al arrancar con un error explicito.
 
+Parametros utiles de `policy_inference`:
+
+- `action_scale_factor:=1.0`
+- `hold_nominal_pose_duration_s:=0.0`
+
+Ejemplo conservador para depuracion:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p action_scale_factor:=0.5 -p hold_nominal_pose_duration_s:=1.0
+```
+
 ## Estado de validacion
 
 Validado hasta ahora:
 
-- sintaxis Python del paquete
 - coherencia interna del vector `obs[99]`
 - uso del mismo orden articular que la politica de MuJoCo
 - build del paquete `policy_control`
+- lazo de observacion e inferencia sincronizado con tiempo de simulacion
+
+Frecuencias esperadas en tiempo de simulacion:
+
+| Componente | Frecuencia teorica |
+| --- | ---: |
+| fisica Gazebo (`max_step_size = 1 ms`) | 1000 Hz |
+| IMU pelvis | 400 Hz |
+| odometria pelvis | 400 Hz |
+| `observation_publisher` | 50 Hz |
+| `policy_inference` | 50 Hz |
+
+Frecuencias medidas en una ejecucion real dentro del contenedor, contra reloj de pared:
+
+| Topic / componente | Frecuencia observada |
+| --- | ---: |
+| `/g1/joint_states` | ~654-694 Hz |
+| `/g1/imu/pelvis` | ~336-355 Hz |
+| `/g1/pelvis/odometry` | ~218-229 Hz |
+| `/g1/observation` | ~33-35 Hz |
+| `/g1/last_action` | ~32-34 Hz |
+| `/clock` | ~590-660 Hz |
+
+Conclusiones cortas:
+
+- `observation_publisher` y `policy_inference` quedan acoplados entre si y avanzan juntos
+- la observacion y `last_action` se mueven en el mismo orden de frecuencia, como se espera
+- la diferencia entre los 50 Hz teoricos y los ~33-35 Hz medidos se explica porque la simulacion no iba a `real_time_factor = 1` de forma sostenida
+- durante la medicion, Gazebo mantuvo `step_size = 1 ms`, asi que el ritmo correcto del lazo sigue estando definido por tiempo de simulacion y no por reloj de pared
 
 Pendiente:
 
-- ejecucion real con la simulacion
+- validacion funcional completa del control en la simulacion
 - validacion numerica contra MuJoCo
 - validacion de `/g1/pelvis/odometry` como sustituto del `velocimeter` de MuJoCo
 - validacion de la salida ONNX y de `last_action` en el lazo cerrado con Gazebo
@@ -161,4 +206,3 @@ Pendiente:
 ## Siguientes pasos recomendados
 
 - integrar el paquete en un launch junto a Gazebo y el bridge
-- validar si hace falta anadir `onnxruntime` al Dockerfile del proyecto

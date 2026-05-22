@@ -103,6 +103,12 @@ Todos los perfiles del G1 publican:
 /g1/imu/torso
 ```
 
+En la variante de control por posicion usada para `policy_control` tambien se publica:
+
+```text
+/g1/pelvis/odometry
+```
+
 El bridge de velocidad configura:
 
 ```text
@@ -122,19 +128,19 @@ Si prefieres `ros2 launch`:
 ```bash
 cd /workspace/ros2_ws
 source /workspace/ros2_ws/install/setup.bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_vel
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_vel spawn_z:=1.2
 ```
 
 Ejemplo para posicion:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_pos
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_pos spawn_z:=1.2
 ```
 
 Ejemplo para base libre:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_free_roam
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py
 ```
 
 Si necesitas que la simulacion no empiece automaticamente al lanzar el bringup:
