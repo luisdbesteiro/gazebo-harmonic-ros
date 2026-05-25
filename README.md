@@ -81,12 +81,41 @@ docker compose up -d gazebo_harmonic_ros2
 
 Ese servicio base no solicita GPU. Es la opcion mas portable y sirve como fallback general.
 
-Si quieres usar GPU NVIDIA, exporta una ruta valida de `XAUTHORITY` y levanta el perfil `nvidia`:
+## Uso con GPU NVIDIA
+
+Para usar la GPU NVIDIA no debes arrancar el servicio base `gazebo_harmonic_ros2`. Debes usar el servicio `gazebo_harmonic_ros2_nvidia` del perfil `nvidia`.
+
+Si has cambiado `docker-compose.yml` o `Dockerfile`, recrea el contenedor `nvidia` para que coja la configuracion nueva:
+
+```bash
+docker compose --profile nvidia down
+docker compose --profile nvidia build gazebo_harmonic_ros2_nvidia
+```
+
+Despues exporta una ruta valida de `XAUTHORITY` y levanta el perfil `nvidia`:
 
 ```bash
 export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
 docker compose --profile nvidia up -d gazebo_harmonic_ros2_nvidia
 ```
+
+Entra siempre en este contenedor, no en el servicio base:
+
+```bash
+docker compose --profile nvidia exec gazebo_harmonic_ros2_nvidia bash
+```
+
+Comprobacion rapida dentro del contenedor:
+
+```bash
+glxinfo -B
+```
+
+Deberias ver al menos estas lineas:
+
+- `OpenGL vendor string: NVIDIA Corporation`
+- `OpenGL renderer string: NVIDIA ...`
+- `direct rendering: Yes`
 
 Si quieres usar GPU AMD o Intel por `/dev/dri`, exporta `XAUTHORITY` y levanta el perfil `dri`:
 
@@ -95,16 +124,12 @@ export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
 docker compose --profile dri up -d gazebo_harmonic_ros2_dri
 ```
 
-Abrir una shell:
+## Uso base o fallback CPU
+
+Abrir una shell en el servicio base:
 
 ```bash
 docker compose exec gazebo_harmonic_ros2 bash
-```
-
-Con NVIDIA:
-
-```bash
-docker compose --profile nvidia exec gazebo_harmonic_ros2_nvidia bash
 ```
 
 Con AMD/Intel:
@@ -141,6 +166,7 @@ El proyecto ofrece tres rutas de arranque:
 - `gazebo_harmonic_ros2_dri`: perfil `dri`, pensado para hosts Linux con AMD o Intel exponiendo `/dev/dri`.
 
 Solo debes arrancar una de ellas cada vez.
+Si quieres usar NVIDIA, no entres por `docker compose exec gazebo_harmonic_ros2 ...` porque ese servicio no solicita GPU.
 
 ## Bringup ROS 2
 
