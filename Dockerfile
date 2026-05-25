@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     lsb-release \
+    mesa-utils \
     nano \
     git \
     python3-colcon-common-extensions \

@@ -225,7 +225,7 @@ def create_launch_description():
             ),
             DeclareLaunchArgument(
                 'use_software_rendering',
-                default_value='true',
+                default_value='false',
                 description='Force software rendering for the Gazebo GUI inside Docker.',
             ),
             DeclareLaunchArgument(

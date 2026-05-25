@@ -59,6 +59,9 @@ Los bridges disponibles son:
 - Docker
 - Docker Compose
 - X11 disponible si quieres abrir la GUI de Gazebo desde el contenedor
+- Driver NVIDIA funcionando en el host si quieres aceleracion GPU con el perfil `nvidia`
+- `nvidia-container-toolkit` instalado en el host si quieres pasar la GPU NVIDIA a Docker
+- Acceso a `/dev/dri` en el host si quieres aceleracion GPU con AMD/Intel usando el perfil `dri`
 
 No hace falta instalar Gazebo Harmonic ni paquetes ROS adicionales en el host.
 
@@ -76,10 +79,38 @@ Levantar el contenedor:
 docker compose up -d gazebo_harmonic_ros2
 ```
 
+Ese servicio base no solicita GPU. Es la opcion mas portable y sirve como fallback general.
+
+Si quieres usar GPU NVIDIA, exporta una ruta valida de `XAUTHORITY` y levanta el perfil `nvidia`:
+
+```bash
+export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
+docker compose --profile nvidia up -d gazebo_harmonic_ros2_nvidia
+```
+
+Si quieres usar GPU AMD o Intel por `/dev/dri`, exporta `XAUTHORITY` y levanta el perfil `dri`:
+
+```bash
+export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
+docker compose --profile dri up -d gazebo_harmonic_ros2_dri
+```
+
 Abrir una shell:
 
 ```bash
 docker compose exec gazebo_harmonic_ros2 bash
+```
+
+Con NVIDIA:
+
+```bash
+docker compose --profile nvidia exec gazebo_harmonic_ros2_nvidia bash
+```
+
+Con AMD/Intel:
+
+```bash
+docker compose --profile dri exec gazebo_harmonic_ros2_dri bash
 ```
 
 Dentro del contenedor puedes lanzar, por ejemplo, la variante fija con control por velocidad:
@@ -100,6 +131,16 @@ Si consultas ROS 2 desde el host, usa el mismo dominio DDS:
 export ROS_DOMAIN_ID=42
 ros2 topic list
 ```
+
+## Perfiles Docker
+
+El proyecto ofrece tres rutas de arranque:
+
+- `gazebo_harmonic_ros2`: servicio base sin solicitud explicita de GPU. Es la opcion mas compatible.
+- `gazebo_harmonic_ros2_nvidia`: perfil `nvidia`, pensado para hosts con driver NVIDIA y `nvidia-container-toolkit`.
+- `gazebo_harmonic_ros2_dri`: perfil `dri`, pensado para hosts Linux con AMD o Intel exponiendo `/dev/dri`.
+
+Solo debes arrancar una de ellas cada vez.
 
 ## Bringup ROS 2
 
@@ -133,6 +174,12 @@ ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
 ```
 
 En ese caso la simulacion queda lista y puedes arrancarla despues desde la GUI con el boton Play.
+
+Si necesitas forzar renderizado por CPU porque la GUI falle con la GPU del host:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py use_software_rendering:=true
+```
 
 ## Modelos y mundos
 

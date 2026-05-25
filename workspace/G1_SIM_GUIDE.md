@@ -19,6 +19,22 @@ docker compose up -d gazebo_harmonic_ros2
 docker compose exec gazebo_harmonic_ros2 bash
 ```
 
+Para GPU NVIDIA:
+
+```bash
+export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
+docker compose --profile nvidia up -d gazebo_harmonic_ros2_nvidia
+docker compose --profile nvidia exec gazebo_harmonic_ros2_nvidia bash
+```
+
+Para GPU AMD o Intel por `/dev/dri`:
+
+```bash
+export XAUTHORITY=${XAUTHORITY:-$HOME/.Xauthority}
+docker compose --profile dri up -d gazebo_harmonic_ros2_dri
+docker compose --profile dri exec gazebo_harmonic_ros2_dri bash
+```
+
 ### Demo fija con control por velocidad
 
 En una shell dentro del contenedor:
@@ -150,6 +166,12 @@ ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_free_roam
 ```
 
 Con `run:=false`, Gazebo arranca en pausa y puedes iniciar la simulacion manualmente desde la GUI con Play cuando ya hayan arrancado el resto de nodos.
+
+Si necesitas volver temporalmente al renderizado por software:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py use_software_rendering:=true
+```
 
 ## Diagnostico rapido
 

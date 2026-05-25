@@ -1,41 +1,87 @@
+x-gazebo-common: &gazebo-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+
+  image: local/gazebo-harmonic-ros2:humble
+
+  stdin_open: true
+  tty: true
+
+  # Facilita ROS 2 DDS, Gazebo Transport y GUI.
+  # No instala nada en el host.
+  network_mode: host
+
+  environment:
+    - DISPLAY=${DISPLAY}
+    - QT_X11_NO_MITSHM=1
+    - XDG_RUNTIME_DIR=/tmp/runtime-root
+
+    # Dominio ROS separado para que no se mezcle accidentalmente
+    # con tus nodos ROS 2 Humble del host.
+    - ROS_DOMAIN_ID=42
+
+    # Rutas de modelos y recursos de Gazebo Harmonic dentro del contenedor
+    - GZ_SIM_RESOURCE_PATH=/workspace/models:/workspace/worlds
+
+  volumes:
+    # GUI X11
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+    # Workspace aislado
+    - ./workspace:/workspace
+
+    # Config/cache propia de Gazebo Harmonic, separada de ~/.gazebo del host
+    - ./gazebo_config:/root/.gz
+
+  working_dir: /workspace
+
+  command: bash
+
 services:
   gazebo_harmonic_ros2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    image: local/gazebo-harmonic-ros2:humble
+    <<: *gazebo-common
     container_name: gazebo_harmonic_ros2
 
-    stdin_open: true
-    tty: true
-
-    # Facilita ROS 2 DDS, Gazebo Transport y GUI.
-    # No instala nada en el host.
-    network_mode: host
-
+  gazebo_harmonic_ros2_nvidia:
+    <<: *gazebo-common
+    container_name: gazebo_harmonic_ros2_nvidia
+    profiles: ["nvidia"]
     environment:
       - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY:-/tmp/.docker.xauth}
       - QT_X11_NO_MITSHM=1
       - XDG_RUNTIME_DIR=/tmp/runtime-root
-
-      # Dominio ROS separado para que no se mezcle accidentalmente
-      # con tus nodos ROS 2 Humble del host.
       - ROS_DOMAIN_ID=42
-
-      # Rutas de modelos y recursos de Gazebo Harmonic dentro del contenedor
       - GZ_SIM_RESOURCE_PATH=/workspace/models:/workspace/worlds
-
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute
+      - __GLX_VENDOR_LIBRARY_NAME=nvidia
+      - __NV_PRIME_RENDER_OFFLOAD=1
+      - __VK_LAYER_NV_optimus=NVIDIA_only
+      - DRI_PRIME=1
     volumes:
-      # GUI X11
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-
-      # Workspace aislado
+      - ${XAUTHORITY:-/tmp/.docker.xauth}:${XAUTHORITY:-/tmp/.docker.xauth}:ro
       - ./workspace:/workspace
-
-      # Config/cache propia de Gazebo Harmonic, separada de ~/.gazebo del host
       - ./gazebo_config:/root/.gz
+    gpus: all
 
-    working_dir: /workspace
-
-    command: bash
+  gazebo_harmonic_ros2_dri:
+    <<: *gazebo-common
+    container_name: gazebo_harmonic_ros2_dri
+    profiles: ["dri"]
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY:-/tmp/.docker.xauth}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-root
+      - ROS_DOMAIN_ID=42
+      - GZ_SIM_RESOURCE_PATH=/workspace/models:/workspace/worlds
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-/tmp/.docker.xauth}:${XAUTHORITY:-/tmp/.docker.xauth}:ro
+      - ./workspace:/workspace
+      - ./gazebo_config:/root/.gz
+    devices:
+      - /dev/dri:/dev/dri
