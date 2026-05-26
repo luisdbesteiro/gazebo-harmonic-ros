@@ -7,13 +7,12 @@ from launch.substitutions import LaunchConfiguration
 
 WORLD_ALIASES = {
     'empty': '/workspace/worlds/empty_world.sdf',
-    'g1_free_roam': '/workspace/worlds/g1_free_roam.world.sdf',
-    'g1_demo_vel': '/workspace/worlds/g1_demo_cmd_vel.world.sdf',
-    'g1_demo_pos': '/workspace/worlds/g1_demo_cmd_pos.world.sdf',
+    'rubicon': '/workspace/worlds/rubicon.sdf',
+    'depot': '/workspace/worlds/depot.sdf',
 }
 
 ROBOT_ALIASES = {
-    'g1_free_roam': '/workspace/models/g1_29dof/model.sdf',
+    'g1': '/workspace/models/g1_29dof/model.sdf',
     'g1_demo_vel': '/workspace/models/g1_demo_cmd_vel/model.sdf',
     'g1_demo_pos': '/workspace/models/g1_demo_cmd_pos/model.sdf',
 }
@@ -31,6 +30,15 @@ def _as_bool(value):
 
 def _resolve_world(world):
     return WORLD_ALIASES.get(world, world)
+
+
+def _resolve_spawn_pose(world, spawn_x, spawn_y, spawn_z):
+    if world == WORLD_ALIASES['rubicon']:
+        if spawn_x == '0.0':
+            spawn_x = '-10.0'
+        if spawn_z == '0.80':
+            spawn_z = '4.9'
+    return spawn_x, spawn_y, spawn_z
 
 
 def _resolve_robot_model(robot_model):
@@ -52,7 +60,7 @@ def _resolve_bridge_config(bridge_config, robot_model):
 
     if robot_model in (
         ROBOT_ALIASES['g1_demo_pos'],
-        ROBOT_ALIASES['g1_free_roam'],
+        ROBOT_ALIASES['g1'],
     ):
         return BRIDGE_ALIASES['g1_pos']
 
@@ -60,7 +68,7 @@ def _resolve_bridge_config(bridge_config, robot_model):
         return BRIDGE_ALIASES['g1_vel']
 
     raise ValueError(
-        'bridge_config:=auto only supports robot_model:=g1_free_roam, robot_model:=g1_demo_vel or robot_model:=g1_demo_pos. Set bridge_config explicitly for custom models.'
+        'bridge_config:=auto only supports robot_model:=g1, robot_model:=g1_demo_vel or robot_model:=g1_demo_pos. Set bridge_config explicitly for custom models.'
     )
 
 
@@ -158,19 +166,26 @@ def create_runtime_actions(
 
 
 def _create_runtime_actions_from_launch_args(context):
+    world = _resolve_world(LaunchConfiguration('world').perform(context))
+    spawn_x, spawn_y, spawn_z = _resolve_spawn_pose(
+        world,
+        LaunchConfiguration('spawn_x').perform(context),
+        LaunchConfiguration('spawn_y').perform(context),
+        LaunchConfiguration('spawn_z').perform(context),
+    )
     robot_model = _resolve_robot_model(
         LaunchConfiguration('robot_model').perform(context)
     )
     return create_runtime_actions(
-        world=_resolve_world(LaunchConfiguration('world').perform(context)),
+        world=world,
         robot_model=robot_model,
         bridge_config=_resolve_bridge_config(
             LaunchConfiguration('bridge_config').perform(context),
             robot_model,
         ),
-        spawn_x=LaunchConfiguration('spawn_x').perform(context),
-        spawn_y=LaunchConfiguration('spawn_y').perform(context),
-        spawn_z=LaunchConfiguration('spawn_z').perform(context),
+        spawn_x=spawn_x,
+        spawn_y=spawn_y,
+        spawn_z=spawn_z,
         gui=_as_bool(LaunchConfiguration('gui').perform(context)),
         run=_as_bool(LaunchConfiguration('run').perform(context)),
         use_software_rendering=_as_bool(
@@ -186,12 +201,12 @@ def create_launch_description():
             DeclareLaunchArgument(
                 'world',
                 default_value='empty',
-                description='Gazebo world alias (empty, g1_free_roam, g1_demo_vel, g1_demo_pos) or absolute path.',
+                description='Gazebo world alias (empty, rubicon, depot) or absolute path.',
             ),
             DeclareLaunchArgument(
                 'robot_model',
-                default_value='g1_free_roam',
-                description='Robot alias (g1_free_roam, g1_demo_vel, g1_demo_pos, none) or absolute path to model.sdf.',
+                default_value='g1',
+                description='Robot alias (g1, g1_demo_vel, g1_demo_pos, none) or absolute path to model.sdf.',
             ),
             DeclareLaunchArgument(
                 'bridge_config',
