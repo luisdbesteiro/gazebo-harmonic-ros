@@ -86,15 +86,15 @@ ACTION_SCALE = [
     0.36295718076906824,  # left_shoulder_yaw_joint
     0.36295718076906824,  # left_elbow_joint
     0.36295718076906824,  # left_wrist_roll_joint
-    46.56304395328023,    # left_wrist_pitch_joint
-    46.56304395328023,    # left_wrist_yaw_joint
+    0.36295718076906824,  # left_wrist_pitch_joint
+    0.36295718076906824,  # left_wrist_yaw_joint
     0.36295718076906824,  # right_shoulder_pitch_joint
     0.36295718076906824,  # right_shoulder_roll_joint
     0.36295718076906824,  # right_shoulder_yaw_joint
     0.36295718076906824,  # right_elbow_joint
     0.36295718076906824,  # right_wrist_roll_joint
-    46.56304395328023,    # right_wrist_pitch_joint
-    46.56304395328023,    # right_wrist_yaw_joint
+    0.36295718076906824,  # right_wrist_pitch_joint
+    0.36295718076906824,  # right_wrist_yaw_joint
 ]
 
 OBSERVATION_DIM = 99

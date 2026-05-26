@@ -45,6 +45,8 @@ class PolicyInference(Node):
         self.declare_parameter('action_clip_min', -100.0)
         self.declare_parameter('action_clip_max', 100.0)
         self.declare_parameter('action_scale_factor', 1.0)
+        self.declare_parameter('upper_body_scale_factor', 1.0)
+        self.declare_parameter('wrist_scale_factor', 1.0)
         self.declare_parameter('hold_nominal_pose_duration_s', 0.0)
 
         observation_topic = self.get_parameter('observation_topic').get_parameter_value().string_value
@@ -61,6 +63,12 @@ class PolicyInference(Node):
         )
         self._action_scale_factor = (
             self.get_parameter('action_scale_factor').get_parameter_value().double_value
+        )
+        self._upper_body_scale_factor = (
+            self.get_parameter('upper_body_scale_factor').get_parameter_value().double_value
+        )
+        self._wrist_scale_factor = (
+            self.get_parameter('wrist_scale_factor').get_parameter_value().double_value
         )
         self._hold_nominal_pose_duration_ns = int(
             self.get_parameter('hold_nominal_pose_duration_s').get_parameter_value().double_value * 1e9
@@ -87,6 +95,14 @@ class PolicyInference(Node):
 
         self._default_joint_pos = np.asarray(DEFAULT_JOINT_POS, dtype=np.float32)
         self._action_scale = np.asarray(ACTION_SCALE, dtype=np.float32)
+        self._upper_body_mask = np.asarray(
+            [0.0] * 15 + [1.0] * (ACTION_DIM - 15),
+            dtype=np.float32,
+        )
+        self._wrist_mask = np.asarray(
+            [0.0] * 19 + [1.0] * 3 + [0.0] * 4 + [1.0] * 3,
+            dtype=np.float32,
+        )
 
         self.get_logger().info(
             'policy_inference ready. '
@@ -172,8 +188,18 @@ class PolicyInference(Node):
         if self._clip_action:
             raw_action = np.clip(raw_action, self._action_clip_min, self._action_clip_max)
 
+        # Optionally attenuate the upper body without touching legs or waist.
+        scaled_action = raw_action * (
+            1.0 + (self._upper_body_scale_factor - 1.0) * self._upper_body_mask
+        )
+        # Wrist joints are the most extreme case in the MuJoCo action scale, so allow
+        # attenuating them separately from shoulders and elbows.
+        scaled_action = scaled_action * (
+            1.0 + (self._wrist_scale_factor - 1.0) * self._wrist_mask
+        )
+
         # Mirror MuJoCo: last_action stores raw policy output, while cmd_pos uses scaled offsets.
-        joint_targets = self._default_joint_pos + raw_action * self._action_scale * self._action_scale_factor
+        joint_targets = self._default_joint_pos + scaled_action * self._action_scale * self._action_scale_factor
         self._publish_targets(joint_targets, raw_action)
 
 

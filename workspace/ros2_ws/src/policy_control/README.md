@@ -45,10 +45,18 @@ La semantica del control replica la referencia MuJoCo:
 - `last_action = raw_action`
 - `joint_target = default_joint_pos + raw_action * action_scale`
 
-Opcionalmente, `policy_inference` permite dos mecanismos de depuracion:
+Opcionalmente, `policy_inference` permite varios mecanismos de depuracion:
 
 - `action_scale_factor`: factor global multiplicativo sobre `raw_action * action_scale`
+- `upper_body_scale_factor`: factor multiplicativo aplicado solo a hombros, codos y munecas
+- `wrist_scale_factor`: factor multiplicativo aplicado solo a `wrist_roll`, `wrist_pitch` y `wrist_yaw`
 - `hold_nominal_pose_duration_s`: tiempo inicial en segundos de simulacion durante el que se publica solo `DEFAULT_JOINT_POS` y `last_action = 0`
+
+Estado actual para Gazebo:
+
+- `wrist_scale_factor` sigue teniendo valor por defecto `1.0`
+- aun asi, la configuracion que mejor estabilidad ha dado en simulacion es lanzar `policy_inference` con `wrist_scale_factor:=0.0`
+- esto deja las munecas en pose nominal desde el punto de vista de la politica y evita perturbaciones que no estaban ayudando al equilibrio
 
 El orden de articulaciones y la pose nominal de referencia estan codificados en:
 
@@ -151,12 +159,36 @@ El nodo requiere `onnxruntime` en el entorno Python del contenedor. Si no esta d
 Parametros utiles de `policy_inference`:
 
 - `action_scale_factor:=1.0`
+- `upper_body_scale_factor:=1.0`
+- `wrist_scale_factor:=1.0`
 - `hold_nominal_pose_duration_s:=0.0`
+
+Recomendacion actual para Gazebo:
+
+- lanzar `policy_inference` con `wrist_scale_factor:=0.0` salvo que se este depurando especificamente el efecto de las munecas
 
 Ejemplo conservador para depuracion:
 
 ```bash
 ros2 run policy_control policy_inference --ros-args -p action_scale_factor:=0.5 -p hold_nominal_pose_duration_s:=1.0
+```
+
+Ejemplo para atenuar movimientos del tren superior:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p upper_body_scale_factor:=0.2
+```
+
+Ejemplo para aislar especificamente el problema de las munecas:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
+```
+
+Ejemplo recomendado de lanzamiento en Gazebo:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
 ```
 
 ## Estado de validacion
@@ -167,6 +199,7 @@ Validado hasta ahora:
 - uso del mismo orden articular que la politica de MuJoCo
 - build del paquete `policy_control`
 - lazo de observacion e inferencia sincronizado con tiempo de simulacion
+- mejora clara de estabilidad en Gazebo al lanzar `policy_inference` con `wrist_scale_factor:=0.0`
 
 Frecuencias esperadas en tiempo de simulacion:
 
@@ -202,6 +235,7 @@ Pendiente:
 - validacion numerica contra MuJoCo
 - validacion de `/g1/pelvis/odometry` como sustituto del `velocimeter` de MuJoCo
 - validacion de la salida ONNX y de `last_action` en el lazo cerrado con Gazebo
+- decidir si `wrist_scale_factor:=0.0` debe convertirse en el valor por defecto o mantenerse solo como recomendacion de lanzamiento
 
 ## Siguientes pasos recomendados
 
