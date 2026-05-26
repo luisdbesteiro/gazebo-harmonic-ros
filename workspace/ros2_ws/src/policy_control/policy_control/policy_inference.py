@@ -20,7 +20,7 @@ except ImportError:  # pragma: no cover - depends on runtime environment
 def default_onnx_path() -> str:
     """Return the repo-local default ONNX path when available."""
     candidate_suffix = Path(
-        'workspace/results/raw/2025-tfg-diego-lopez/pruebas/G1/2026-01-26_10-42-02.onnx'
+        'workspace/results/2026-01-26_10-42-02.onnx'
     )
     # Walk up from the installed module so this still works after colcon install.
     for parent in Path(__file__).resolve().parents:
