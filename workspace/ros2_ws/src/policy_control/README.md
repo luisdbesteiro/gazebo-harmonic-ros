@@ -1,72 +1,43 @@
 # policy_control
 
-Paquete ROS 2 para preparar la integracion de la politica neuronal del G1 en Gazebo Harmonic.
+Paquete ROS 2 para ejecutar una politica ONNX de locomocion del Unitree G1 en Gazebo Harmonic.
 
-## Estado actual
+El paquete conecta el estado simulado del robot con el formato de observacion usado por la politica entrenada en MuJoCo, ejecuta inferencia y publica objetivos articulares por posicion.
 
-El paquete esta en una fase inicial. Ahora mismo contiene dos nodos:
+## Nodos
 
-- `observation_publisher`
-- `policy_inference`
+### `observation_publisher`
 
-Su objetivo es reconstruir y publicar el vector de observacion `obs[99]` que espera la politica entrenada en MuJoCo.
+Construye y publica el vector `obs[99]` en `/g1/observation`.
 
-## Lo que hace ahora mismo
+Entradas por defecto:
 
-El nodo `observation_publisher`:
+- `/g1/joint_states`
+- `/g1/imu/pelvis`
+- `/g1/pelvis/odometry`
+- `/g1/pelvis_twist`
+- `/cmd_vel`
+- `/g1/last_action`
+- `/clock`
 
-- subscribe a `/g1/joint_states`
-- subscribe a `/g1/imu/pelvis`
-- subscribe a `/g1/pelvis/odometry`
-- subscribe a `/clock`
-- subscribe a `/cmd_vel`
-- subscribe a `/g1/last_action`
-- subscribe opcionalmente a `/g1/pelvis_twist`
-- publica la observacion completa en `/g1/observation` como `std_msgs/msg/Float64MultiArray`
+Salida por defecto:
 
-El nodo `policy_inference`:
+- `/g1/observation`
 
-- subscribe a `/g1/observation`
-- subscribe a `/clock`
-- carga la politica ONNX
-- publica `last_action` en `/g1/last_action`
-- publica objetivos articulares en `/g1/cmd_pos/<joint_name>`
+El nodo publica al ritmo de tiempo de simulacion, no con reloj de pared. Solo genera una observacion nueva cuando avanza `/clock`, respetando `publish_rate_hz`, que por defecto es `50.0`.
 
-El lazo ya no depende de timers de reloj de pared:
+### `policy_inference`
 
-- `observation_publisher` publica solo cuando avanza `/clock`
-- `policy_inference` hace inferencia al recibir cada observacion nueva
+Carga la politica ONNX, consume `/g1/observation` y publica:
 
-Esto evita que la politica siga iterando mientras Gazebo esta en pausa con `run:=false` y se ajusta a los cambios reales en la simulacion.
+- `/g1/last_action`
+- `/g1/cmd_pos/<joint_name>`
 
-La semantica del control replica la referencia MuJoCo:
+La inferencia se ejecuta al recibir cada observacion valida. No usa timers de reloj de pared, asi que queda acoplada al avance real de la simulacion.
 
-- `raw_action = policy(obs)`
-- `last_action = raw_action`
-- `joint_target = default_joint_pos + raw_action * action_scale`
+## Estructura de `obs[99]`
 
-Opcionalmente, `policy_inference` permite varios mecanismos de depuracion:
-
-- `action_scale_factor`: factor global multiplicativo sobre `raw_action * action_scale`
-- `upper_body_scale_factor`: factor multiplicativo aplicado solo a hombros, codos y munecas
-- `wrist_scale_factor`: factor multiplicativo aplicado solo a `wrist_roll`, `wrist_pitch` y `wrist_yaw`
-- `hold_nominal_pose_duration_s`: tiempo inicial en segundos de simulacion durante el que se publica solo `DEFAULT_JOINT_POS` y `last_action = 0`
-
-Estado actual para Gazebo:
-
-- `wrist_scale_factor` sigue teniendo valor por defecto `1.0`
-- aun asi, la configuracion que mejor estabilidad ha dado en simulacion es lanzar `policy_inference` con `wrist_scale_factor:=0.0`
-- esto deja las munecas en pose nominal desde el punto de vista de la politica y evita perturbaciones que no estaban ayudando al equilibrio
-
-El orden de articulaciones y la pose nominal de referencia estan codificados en:
-
-- `policy_control/constants.py`
-
-La pose nominal usada es la `KNEES_BENT_KEYFRAME` de la referencia MuJoCo.
-
-## Estructura de la observacion
-
-La observacion publicada sigue esta estructura:
+La observacion mantiene el orden esperado por la politica:
 
 1. velocidad lineal de pelvis: 3
 2. velocidad angular de pelvis: 3
@@ -76,167 +47,150 @@ La observacion publicada sigue esta estructura:
 6. `last_action`: 29
 7. comando `[vx, vy, wz]`: 3
 
-Total:
+Total: `99` componentes.
 
-- `99` componentes
+El orden de articulaciones, la pose nominal y las escalas de accion estan definidos en:
 
-## Limitaciones actuales
+- `policy_control/constants.py`
 
-Este paquete todavia no reproduce completamente la observacion de MuJoCo.
+## Semantica del control
 
-Limitaciones conocidas:
+La salida de la red se interpreta igual que en la referencia de MuJoCo:
 
-- la nueva fuente principal de velocidad lineal es `/g1/pelvis/odometry`, publicada por `OdometryPublisher`
-- esa velocidad lineal no sale del sensor IMU de Gazebo, sino de un publisher de odometria basado en el estado cinemático del modelo
-- la IMU estandar de Gazebo publica orientacion, velocidad angular y aceleracion lineal, pero no velocidad lineal
-- esto aproxima el `velocimeter` de MuJoCo, pero no es un sensor equivalente ni una IMU realista
-- si no llega ni `/g1/pelvis/odometry` ni `/g1/pelvis_twist`, las primeras 3 componentes de la observacion se publican a cero
-- no hay launch propio del paquete
-- no se ha validado aun la observacion contra trazas de MuJoCo
-- falta validar en simulacion que las ganancias PD de Gazebo permiten que la politica se comporte de forma parecida a MuJoCo
-
-## Nota sobre sensores en Gazebo
-
-En Gazebo Harmonic no estamos usando un sensor nativo tipo `velocimeter` como el de MuJoCo.
-
-Segun la documentacion oficial:
-
-- la IMU de Gazebo publica orientacion, velocidad angular y aceleracion lineal
-- la lista oficial de sensores soportados no incluye un sensor generico de velocidad lineal para un link terrestre equivalente al `velocimeter` de MuJoCo
-
-Referencias:
-
-- sensores de Gazebo: https://gazebosim.org/libs/sensors/
-- tutorial de IMU en Gazebo Harmonic: https://gazebosim.org/docs/harmonic/sensors/
-- API de `OdometryPublisher`: https://gazebosim.org/api/sim/9/classgz_1_1sim_1_1systems_1_1OdometryPublisher.html
-
-Por eso, de momento, la velocidad lineal de pelvis se obtiene desde `OdometryPublisher` como una aproximacion funcional para reproducir la entrada que esperaba la politica.
-
-Si mas adelante hace falta una solucion mas fiel, hay dos caminos razonables:
-
-- mantener `OdometryPublisher` solo para validacion inicial de la politica
-- implementar un plugin o sensor custom que publique la velocidad lineal de pelvis en el frame del IMU, con el ruido y la dinamica que interese simular
-
-## Topics usados por defecto
-
-Entradas:
-
-- `/g1/joint_states`
-- `/g1/imu/pelvis`
-- `/g1/pelvis/odometry`
-- `/g1/pelvis_twist`
-- `/cmd_vel`
-- `/g1/last_action`
-- `/g1/observation`
-- `/clock`
-
-Salida:
-
-- `/g1/observation`
-- `/g1/last_action`
-- `/g1/cmd_pos/<joint_name>`
-
-Todos son parametrizables desde ROS.
-
-En particular, `/cmd_vel` se interpreta como:
-
-- `linear.x -> vx`
-- `linear.y -> vy`
-- `angular.z -> wz`
-
-`/g1/last_action` contiene la salida ONNX cruda en el mismo orden articular de la politica.
-
-## Politica ONNX
-
-Por defecto, `policy_inference` intenta cargar:
-
-- `workspace/results/raw/2025-tfg-diego-lopez/pruebas/G1/2026-01-26_10-42-02.onnx`
-
-La ruta puede sobreescribirse con el parametro ROS `onnx_model_path`.
-
-El nodo requiere `onnxruntime` en el entorno Python del contenedor. Si no esta disponible, el nodo fallara al arrancar con un error explicito.
-
-Parametros utiles de `policy_inference`:
-
-- `action_scale_factor:=1.0`
-- `upper_body_scale_factor:=1.0`
-- `wrist_scale_factor:=1.0`
-- `hold_nominal_pose_duration_s:=0.0`
-
-Recomendacion actual para Gazebo:
-
-- lanzar `policy_inference` con `wrist_scale_factor:=0.0` salvo que se este depurando especificamente el efecto de las munecas
-
-Ejemplo conservador para depuracion:
-
-```bash
-ros2 run policy_control policy_inference --ros-args -p action_scale_factor:=0.5 -p hold_nominal_pose_duration_s:=1.0
+```text
+raw_action = policy(obs)
+last_action = raw_action
+joint_target = default_joint_pos + scaled_action * action_scale * action_scale_factor
 ```
 
-Ejemplo para atenuar movimientos del tren superior:
+`last_action` guarda la salida cruda de la politica. Los objetivos articulares publicados en `/g1/cmd_pos/<joint_name>` aplican los factores de escala configurados.
+
+## Parametros principales
+
+### `observation_publisher`
+
+| Parametro | Valor por defecto |
+| --- | --- |
+| `joint_state_topic` | `/g1/joint_states` |
+| `pelvis_imu_topic` | `/g1/imu/pelvis` |
+| `pelvis_odometry_topic` | `/g1/pelvis/odometry` |
+| `pelvis_twist_topic` | `/g1/pelvis_twist` |
+| `command_topic` | `/cmd_vel` |
+| `last_action_topic` | `/g1/last_action` |
+| `observation_topic` | `/g1/observation` |
+| `clock_topic` | `/clock` |
+| `publish_rate_hz` | `50.0` |
+
+### `policy_inference`
+
+| Parametro | Valor por defecto |
+| --- | --- |
+| `observation_topic` | `/g1/observation` |
+| `last_action_topic` | `/g1/last_action` |
+| `cmd_pos_prefix` | `/g1/cmd_pos` |
+| `onnx_model_path` | `workspace/results/2026-01-26_10-42-02.onnx` si existe |
+| `clock_topic` | `/clock` |
+| `clip_action` | `false` |
+| `action_clip_min` | `-100.0` |
+| `action_clip_max` | `100.0` |
+| `action_scale_factor` | `1.0` |
+| `upper_body_scale_factor` | `1.0` |
+| `wrist_scale_factor` | `1.0` |
+| `hold_nominal_pose_duration_s` | `0.0` |
+
+El nodo requiere `onnxruntime` en el entorno Python del contenedor. Si no esta disponible, falla al arrancar con un error explicito.
+
+## Uso recomendado
+
+Primero lanza la simulacion con el robot principal `g1` y bridge de posicion.
+
+Mundo vacio, referencia mas estable para comparar la politica:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
+```
+
+Despues, en otras terminales dentro del contenedor:
+
+```bash
+ros2 run policy_control observation_publisher
+ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
+```
+La recomendacion actual para Gazebo es usar `wrist_scale_factor:=0.0`, salvo que se este depurando especificamente el efecto de las muñecas.
+
+Con todo esto cargado, el robot está listo para recibir comandos de velocidad y dirección deseadas desde el topic `/cmd_vel`. Una buena forma de enviarlos es usando `teleop_twist_keyboard` desde otra terminal:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+## Ejemplos de depuracion
+
+Atenuar toda la accion:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p action_scale_factor:=0.5
+```
+
+Mantener la pose nominal al inicio:
+
+```bash
+ros2 run policy_control policy_inference --ros-args -p hold_nominal_pose_duration_s:=1.0
+```
+
+Atenuar solo tren superior:
 
 ```bash
 ros2 run policy_control policy_inference --ros-args -p upper_body_scale_factor:=0.2
 ```
 
-Ejemplo para aislar especificamente el problema de las munecas:
+Fijar las muñecas en la pose nominal desde el punto de vista del comando:
 
 ```bash
 ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
 ```
 
-Ejemplo recomendado de lanzamiento en Gazebo:
+Sobreescribir la ruta del modelo ONNX:
 
 ```bash
-ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
+ros2 run policy_control policy_inference --ros-args -p onnx_model_path:=/workspace/results/2026-01-26_10-42-02.onnx
 ```
 
-## Estado de validacion
+## Comprobaciones rapidas
 
-Validado hasta ahora:
+Verificar que llegan entradas:
 
-- coherencia interna del vector `obs[99]`
-- uso del mismo orden articular que la politica de MuJoCo
-- build del paquete `policy_control`
-- lazo de observacion e inferencia sincronizado con tiempo de simulacion
-- mejora clara de estabilidad en Gazebo al lanzar `policy_inference` con `wrist_scale_factor:=0.0`
+```bash
+ros2 topic hz /g1/joint_states
+ros2 topic hz /g1/imu/pelvis
+ros2 topic hz /g1/pelvis/odometry
+```
 
-Frecuencias esperadas en tiempo de simulacion:
+Verificar el lazo de politica:
 
-| Componente | Frecuencia teorica |
-| --- | ---: |
-| fisica Gazebo (`max_step_size = 1 ms`) | 1000 Hz |
-| IMU pelvis | 400 Hz |
-| odometria pelvis | 400 Hz |
-| `observation_publisher` | 50 Hz |
-| `policy_inference` | 50 Hz |
+```bash
+ros2 topic hz /g1/observation
+ros2 topic hz /g1/last_action
+ros2 topic list | grep '^/g1/cmd_pos/'
+```
 
-Frecuencias medidas en una ejecucion real dentro del contenedor, contra reloj de pared:
+Enviar comandos externos para la politica:
 
-| Topic / componente | Frecuencia observada |
-| --- | ---: |
-| `/g1/joint_states` | ~654-694 Hz |
-| `/g1/imu/pelvis` | ~336-355 Hz |
-| `/g1/pelvis/odometry` | ~218-229 Hz |
-| `/g1/observation` | ~33-35 Hz |
-| `/g1/last_action` | ~32-34 Hz |
-| `/clock` | ~590-660 Hz |
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
 
-Conclusiones cortas:
+## Estado por mundos
 
-- `observation_publisher` y `policy_inference` quedan acoplados entre si y avanzan juntos
-- la observacion y `last_action` se mueven en el mismo orden de frecuencia, como se espera
-- la diferencia entre los 50 Hz teoricos y los ~33-35 Hz medidos se explica porque la simulacion no iba a `real_time_factor = 1` de forma sostenida
-- durante la medicion, Gazebo mantuvo `step_size = 1 ms`, asi que el ritmo correcto del lazo sigue estando definido por tiempo de simulacion y no por reloj de pared
+| Mundo | Estado para politica |
+| --- | --- |
+| `empty` | Referencia principal. Es el entorno mas estable para comparar cambios de control. |
+| `rubicon` | Compatible con spawn especial desde `g1_sim_bringup`; requiere validacion de la politica sobre geometria no plana. |
+| `depot` | En depuracion. Se han ajustado fisicas, suelo duplicado y estaticidad del modelo, pero puede seguir comportandose peor que `empty`. |
 
-Pendiente:
+## Pasos futuros
 
-- validacion funcional completa del control en la simulacion
-- validacion numerica contra MuJoCo
-- validacion de `/g1/pelvis/odometry` como sustituto del `velocimeter` de MuJoCo
-- validacion de la salida ONNX y de `last_action` en el lazo cerrado con Gazebo
-- decidir si `wrist_scale_factor:=0.0` debe convertirse en el valor por defecto o mantenerse solo como recomendacion de lanzamiento
-
-## Siguientes pasos recomendados
-
-- integrar el paquete en un launch junto a Gazebo y el bridge
+- La velocidad en la pelvis no es un sensor nativo equivalente al velocimetro de MuJoCo, la IMU de Gazebo aporta orientacion, velocidad angular y aceleracion lineal, pero no velocidad lineal. Esto puede afrontarse haciendo un plugin de sensor personalizado en Gazebo.
+- Todavía no hay launch propio de `policy_control`; se lanza junto a una simulacion ya arrancada con `g1_sim_bringup`.
+- Integrar el proceso de observación e inferencia en un único nodo C++.
+- Explorar la opción de introducir el controlador en un plugin personalizado de gazebo, sin pasar por ROS para "acercarnos" más al bajo nivel y ganar velocidad.
