@@ -36,6 +36,7 @@ class PolicyInference(Node):
     def __init__(self) -> None:
         super().__init__('policy_inference')
 
+        # Keep the Python path configurable; it is mainly used for debugging and comparison.
         self.declare_parameter('observation_topic', '/g1/observation')
         self.declare_parameter('last_action_topic', '/g1/last_action')
         self.declare_parameter('cmd_pos_prefix', '/g1/cmd_pos')
@@ -79,6 +80,7 @@ class PolicyInference(Node):
         self._current_sim_time_ns: Optional[int] = None
         self._activation_sim_time_ns: Optional[int] = None
 
+        # One scalar command topic is published per joint because the Gazebo bridge maps them separately.
         self._last_action_publisher = self.create_publisher(Float64MultiArray, last_action_topic, 10)
         self._joint_publishers = {
             joint_name: self.create_publisher(Float64, f'{cmd_pos_prefix}/{joint_name}', 10)
@@ -95,6 +97,7 @@ class PolicyInference(Node):
 
         self._default_joint_pos = np.asarray(DEFAULT_JOINT_POS, dtype=np.float32)
         self._action_scale = np.asarray(ACTION_SCALE, dtype=np.float32)
+        # Masks allow reducing unstable body groups without changing the trained policy output.
         self._upper_body_mask = np.asarray(
             [0.0] * 15 + [1.0] * (ACTION_DIM - 15),
             dtype=np.float32,

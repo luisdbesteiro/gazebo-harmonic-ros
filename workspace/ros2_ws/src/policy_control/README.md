@@ -4,6 +4,8 @@ Paquete ROS 2 para ejecutar una politica ONNX de locomocion del Unitree G1 en Ga
 
 El paquete conecta el estado simulado del robot con el formato de observacion usado por la politica entrenada en MuJoCo, ejecuta inferencia y publica objetivos articulares por posicion.
 
+El funcionamiento por defecto actual es usar el nodo C++ `policy_controller_cpp`, porque reduce procesos, copias ROS intermedias y coste de memoria frente al par de nodos Python. Los nodos Python se mantienen como recurso de depuracion y por claridad, ya que separan explicitamente la construccion de la observacion y la inferencia.
+
 ## Nodos
 
 ### `observation_publisher`
@@ -34,6 +36,26 @@ Carga la politica ONNX, consume `/g1/observation` y publica:
 - `/g1/cmd_pos/<joint_name>`
 
 La inferencia se ejecuta al recibir cada observacion valida. No usa timers de reloj de pared, asi que queda acoplada al avance real de la simulacion.
+
+### `policy_controller_cpp`
+
+Nodo C++ integrado que sustituye al par `observation_publisher` + `policy_inference` y ejecuta todo el lazo en un solo proceso.
+
+Entradas por defecto:
+
+- `/g1/joint_states`
+- `/g1/imu/pelvis`
+- `/g1/pelvis/odometry`
+- `/g1/pelvis_twist`
+- `/cmd_vel`
+- `/clock`
+
+Salidas por defecto:
+
+- `/g1/last_action`
+- `/g1/cmd_pos/<joint_name>`
+
+El nodo construye internamente `obs[99]`, ejecuta la politica ONNX con ONNX Runtime C++ y publica los objetivos articulares. Por defecto no publica `/g1/observation`, se puede activar con `publish_observation:=true`.
 
 ## Estructura de `obs[99]`
 
@@ -100,6 +122,16 @@ joint_target = default_joint_pos + scaled_action * action_scale * action_scale_f
 
 El nodo requiere `onnxruntime` en el entorno Python del contenedor. Si no esta disponible, falla al arrancar con un error explicito.
 
+### `policy_controller_cpp`
+
+Usa los mismos parametros de entrada y control que `observation_publisher` y `policy_inference`, mas:
+
+| Parametro | Valor por defecto |
+| --- | --- |
+| `publish_observation` | `false` |
+
+El nodo requiere ONNX Runtime C/C++ en la imagen Docker. El `Dockerfile` lo instala en `/opt/onnxruntime`; despues de cambiar la imagen hay que reconstruirla.
+
 ## Uso recomendado
 
 Primero lanza la simulacion con el robot principal `g1` y bridge de posicion.
@@ -113,10 +145,22 @@ ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
 Despues, en otras terminales dentro del contenedor:
 
 ```bash
+ros2 run policy_control policy_controller_cpp --ros-args -p wrist_scale_factor:=0.0
+```
+La recomendacion actual para Gazebo es usar `wrist_scale_factor:=0.0`, salvo que se este depurando especificamente el efecto de las muñecas.
+
+Ruta Python para depuracion:
+
+```bash
 ros2 run policy_control observation_publisher
 ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
 ```
-La recomendacion actual para Gazebo es usar `wrist_scale_factor:=0.0`, salvo que se este depurando especificamente el efecto de las muñecas.
+
+Si se quiere inspeccionar tambien la observacion generada por el nodo C++:
+
+```bash
+ros2 run policy_control policy_controller_cpp --ros-args -p wrist_scale_factor:=0.0 -p publish_observation:=true
+```
 
 Con todo esto cargado, el robot está listo para recibir comandos de velocidad y dirección deseadas desde el topic `/cmd_vel`. Una buena forma de enviarlos es usando `teleop_twist_keyboard` desde otra terminal:
 
@@ -192,5 +236,5 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
 - La velocidad en la pelvis no es un sensor nativo equivalente al velocimetro de MuJoCo, la IMU de Gazebo aporta orientacion, velocidad angular y aceleracion lineal, pero no velocidad lineal. Esto puede afrontarse haciendo un plugin de sensor personalizado en Gazebo.
 - Todavía no hay launch propio de `policy_control`; se lanza junto a una simulacion ya arrancada con `g1_sim_bringup`.
-- Integrar el proceso de observación e inferencia en un único nodo C++.
+- Descartar los nodos Python y la dependencia `onnxruntime` del entorno Python del contenedor.
 - Explorar la opción de introducir el controlador en un plugin personalizado de gazebo, sin pasar por ROS para "acercarnos" más al bajo nivel y ganar velocidad.

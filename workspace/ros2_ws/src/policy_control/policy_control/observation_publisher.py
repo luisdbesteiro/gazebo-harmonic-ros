@@ -64,6 +64,7 @@ class ObservationPublisher(Node):
     def __init__(self) -> None:
         super().__init__('observation_publisher')
 
+        # Topic names stay configurable so this debug node can follow bridge changes.
         self.declare_parameter('joint_state_topic', '/g1/joint_states')
         self.declare_parameter('pelvis_imu_topic', '/g1/imu/pelvis')
         self.declare_parameter('pelvis_odometry_topic', '/g1/pelvis/odometry')
@@ -94,6 +95,7 @@ class ObservationPublisher(Node):
         self._last_publish_time_ns: Optional[int] = None
         self._publish_period_ns = int(1e9 / publish_rate_hz) if publish_rate_hz > 0.0 else 20_000_000
 
+        # This node only publishes the observation; policy_inference consumes it.
         self._observation_publisher = self.create_publisher(Float64MultiArray, observation_topic, 10)
 
         self.create_subscription(JointState, joint_state_topic, self._on_joint_state, 10)
@@ -147,6 +149,7 @@ class ObservationPublisher(Node):
                 return
 
         self._last_publish_time_ns = current_time_ns
+        # Drive the observation from simulation time so paused Gazebo does not advance control.
         self._publish_observation()
 
     def _ordered_joint_values(self) -> Optional[tuple[list[float], list[float]]]:
@@ -189,6 +192,7 @@ class ObservationPublisher(Node):
         # MuJoCo feeds joint positions relative to the default knees-bent pose.
         qpos_rel = [pos - default for pos, default in zip(ordered_pos, DEFAULT_JOINT_POS)]
 
+        # Prefer odometry because it carries pelvis linear velocity directly; Twist is a fallback.
         if self._pelvis_odometry is not None:
             linear_velocity = [
                 self._pelvis_odometry.twist.twist.linear.x,

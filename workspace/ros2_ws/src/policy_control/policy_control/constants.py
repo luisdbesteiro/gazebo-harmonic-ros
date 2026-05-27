@@ -1,5 +1,6 @@
 """Constants for the G1 locomotion policy interface."""
 
+# All arrays below use the exact MuJoCo policy joint order, not Gazebo's message order.
 JOINT_ORDER = [
     'left_hip_pitch_joint',
     'left_hip_roll_joint',

@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Herramientas básicas
 RUN apt-get update && apt-get install -y \
     curl \
+    ca-certificates \
     gnupg \
     lsb-release \
     mesa-utils \
@@ -32,6 +33,25 @@ RUN apt-get update && apt-get install -y \
     ros-humble-robot-state-publisher \
     ros-humble-rviz2 \
     && rm -rf /var/lib/apt/lists/*
+
+# ONNX Runtime C/C++ para el nodo integrado de policy_control.
+ARG ONNXRUNTIME_VERSION=1.18.1
+ARG TARGETARCH
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+        amd64) ORT_ARCH="x64" ;; \
+        arm64) ORT_ARCH="aarch64" ;; \
+        *) echo "Arquitectura no soportada para ONNX Runtime: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    curl -L "https://github.com/microsoft/onnxruntime/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-linux-${ORT_ARCH}-${ONNXRUNTIME_VERSION}.tgz" \
+        -o /tmp/onnxruntime.tgz; \
+    tar -xzf /tmp/onnxruntime.tgz -C /opt; \
+    mv "/opt/onnxruntime-linux-${ORT_ARCH}-${ONNXRUNTIME_VERSION}" /opt/onnxruntime; \
+    echo "/opt/onnxruntime/lib" > /etc/ld.so.conf.d/onnxruntime.conf; \
+    ldconfig; \
+    rm /tmp/onnxruntime.tgz
+
+ENV ONNXRUNTIME_ROOT=/opt/onnxruntime
 
 # Dependencias Python del proyecto dentro del contenedor
 RUN python3 -m pip install --no-cache-dir \
