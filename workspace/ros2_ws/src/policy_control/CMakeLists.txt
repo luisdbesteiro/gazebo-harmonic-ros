@@ -11,6 +11,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(gz-msgs10 REQUIRED)
+find_package(gz-plugin2 REQUIRED)
+find_package(gz-sim8 REQUIRED)
+find_package(gz-transport13 REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
@@ -41,7 +45,16 @@ add_executable(policy_controller_cpp
   src/policy_controller_cpp.cpp
 )
 
+add_library(policy_gz_system SHARED
+  src/policy_gz_system.cpp
+)
+
 target_include_directories(policy_controller_cpp PRIVATE
+  include
+  ${ONNXRUNTIME_INCLUDE_DIR}
+)
+
+target_include_directories(policy_gz_system PRIVATE
   include
   ${ONNXRUNTIME_INCLUDE_DIR}
 )
@@ -55,13 +68,32 @@ ament_target_dependencies(policy_controller_cpp
   std_msgs
 )
 
+ament_target_dependencies(policy_gz_system
+  geometry_msgs
+  rclcpp
+  std_msgs
+)
+
 target_link_libraries(policy_controller_cpp
+  ${ONNXRUNTIME_LIBRARY}
+)
+
+target_link_libraries(policy_gz_system
+  gz-msgs10::gz-msgs10
+  gz-plugin2::gz-plugin2
+  gz-sim8::gz-sim8
+  gz-transport13::gz-transport13
   ${ONNXRUNTIME_LIBRARY}
 )
 
 install(TARGETS
   policy_controller_cpp
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(TARGETS
+  policy_gz_system
+  DESTINATION lib
 )
 
 install(PROGRAMS
@@ -73,6 +105,10 @@ install(PROGRAMS
 install(DIRECTORY
   include/
   DESTINATION include
+)
+
+ament_environment_hooks(
+  env-hooks/gz_sim_system_plugin_path.dsv
 )
 
 ament_package()
