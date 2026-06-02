@@ -12,9 +12,9 @@ WORLD_ALIASES = {
 }
 
 ROBOT_ALIASES = {
-    'g1': '/workspace/models/g1_29dof/model.sdf',
-    'g1_demo_vel': '/workspace/models/g1_demo_cmd_vel/model.sdf',
-    'g1_demo_pos': '/workspace/models/g1_demo_cmd_pos/model.sdf',
+    'g1_policy_plugin': '/workspace/models/g1_policy_plugin/model.sdf',
+    'g1_low_level': '/workspace/models/g1_low_level/model.sdf',
+    'g1_demo': '/workspace/models/g1_demo_cmd_vel/model.sdf',
 }
 
 BRIDGE_ALIASES = {
@@ -55,20 +55,19 @@ def _resolve_bridge_config(bridge_config, robot_model):
     if bridge_config != 'auto':
         return BRIDGE_ALIASES.get(bridge_config, bridge_config)
 
-    if robot_model is None:
+    if robot_model == ROBOT_ALIASES['g1_policy_plugin']:
         return BRIDGE_ALIASES['clock']
 
+    if robot_model == ROBOT_ALIASES['g1_demo']:
+        return BRIDGE_ALIASES['g1_vel']
+
     if robot_model in (
-        ROBOT_ALIASES['g1_demo_pos'],
-        ROBOT_ALIASES['g1'],
+        ROBOT_ALIASES['g1_low_level'],
     ):
         return BRIDGE_ALIASES['g1_pos']
 
-    if robot_model == ROBOT_ALIASES['g1_demo_vel']:
-        return BRIDGE_ALIASES['g1_vel']
-
     raise ValueError(
-        'bridge_config:=auto only supports robot_model:=g1, robot_model:=g1_demo_vel or robot_model:=g1_demo_pos. Set bridge_config explicitly for custom models.'
+        'bridge_config:=auto only supports robot_model:=g1_low_level, robot_model:=g1_policy_plugin or robot_model:=g1_demo. Set bridge_config explicitly for custom models.'
     )
 
 
@@ -205,8 +204,8 @@ def create_launch_description():
             ),
             DeclareLaunchArgument(
                 'robot_model',
-                default_value='g1',
-                description='Robot alias (g1, g1_demo_vel, g1_demo_pos, none) or absolute path to model.sdf.',
+                default_value='g1_policy_plugin',
+                description='Robot alias (g1_low_level, g1_policy_plugin, g1_demo, none) or absolute path to model.sdf.',
             ),
             DeclareLaunchArgument(
                 'bridge_config',

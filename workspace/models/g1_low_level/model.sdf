@@ -1,32 +1,18 @@
 <sdf version='1.11'>
-  <model name='g1_demo_cmd_pos'>
-    <joint name="pelvis_world_joint" type="fixed">
-      <parent>world</parent>
-      <child>pelvis</child>
-    </joint>
-
+  <model name='g1_joint_controllers'>
     <link name='pelvis'>
       <inertial>
-        <pose>0 0 -0.076030060304142652 0 0 0</pose>
-        <mass>3.8140000000000001</mass>
+        <pose>0 0 -0.07605 0 0 0</pose>
+        <mass>3.813</mass>
         <inertia>
-          <ixx>0.010554882086086121</ixx>
+          <ixx>0.010549</ixx>
           <ixy>0</ixy>
-          <ixz>2.0999999999999998e-06</ixz>
-          <iyy>0.0093147820860861284</iyy>
+          <ixz>2.1e-06</ixz>
+          <iyy>0.0093089</iyy>
           <iyz>0</iyz>
-          <izz>0.0079185000000000002</izz>
+          <izz>0.0079184</izz>
         </inertia>
       </inertial>
-      <collision name='pelvis_contour_link_collision'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/pelvis_contour_link.STL</uri>
-          </mesh>
-        </geometry>
-      </collision>
       <visual name='pelvis_visual'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
@@ -38,19 +24,6 @@
         <material>
           <diffuse>0.25 0.25 0.25 1</diffuse>
           <ambient>0.25 0.25 0.25 1</ambient>
-        </material>
-      </visual>
-      <visual name='pelvis_contour_link_visual_1'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/pelvis_contour_link.STL</uri>
-          </mesh>
-        </geometry>
-        <material>
-          <diffuse>0.875 0.875 0.875 1</diffuse>
-          <ambient>0.875 0.875 0.875 1</ambient>
         </material>
       </visual>
       <sensor name='pelvis_imu' type='imu'>
@@ -72,6 +45,48 @@
           </linear_acceleration>
         </imu>
       </sensor>
+    </link>
+    <joint name='pelvis_contour_joint' type='fixed'>
+      <pose relative_to='pelvis'>0 0 0 0 0 0</pose>
+      <parent>pelvis</parent>
+      <child>pelvis_contour_link</child>
+    </joint>
+    <link name='pelvis_contour_link'>
+      <pose relative_to='pelvis_contour_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-07</iyy>
+          <iyz>0</iyz>
+          <izz>1e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='pelvis_contour_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/pelvis_contour_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='pelvis_contour_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/pelvis_contour_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.875 0.875 0.875 1</diffuse>
+          <ambient>0.875 0.875 0.875 1</ambient>
+        </material>
+      </visual>
     </link>
     <joint name='left_hip_pitch_joint' type='revolute'>
       <pose relative_to='pelvis'>0 0.064451999999999995 -0.1027 0 0 0</pose>
@@ -896,15 +911,15 @@
     <link name='torso_link'>
       <pose relative_to='waist_pitch_joint'>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.00203133446334911 0.00033972674939234998 0.18459714519636691 0 0 0</pose>
-        <mass>7.8170000000000011</mass>
+        <pose>0.00093100000000000003 0.00034599999999999999 0.15082 0 0 0</pose>
+        <mass>6.7800000000000002</mass>
         <inertia>
-          <ixx>0.1216465196429006</ixx>
-          <ixy>3.1110210297586289e-05</ixy>
-          <ixz>-0.0037428195854218851</ixz>
-          <iyy>0.10977258485702911</iyy>
-          <iyz>-1.5429925458139451e-05</iyz>
-          <izz>0.02752191941535314</izz>
+          <ixx>0.059050000000000005</ixx>
+          <ixy>3.3301999999999998e-05</ixy>
+          <ixz>-0.0017715000000000001</ixz>
+          <iyy>0.047014000000000001</iyy>
+          <iyz>-2.2399000000000001e-05</iyz>
+          <izz>0.025652000000000001</izz>
         </inertia>
       </inertial>
       <collision name='torso_link_collision'>
@@ -913,24 +928,6 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://g1_description/meshes/torso_link_rev_1_0.STL</uri>
-          </mesh>
-        </geometry>
-      </collision>
-      <collision name='torso_link_fixed_joint_lump__head_link_collision_1'>
-        <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/head_link.STL</uri>
-          </mesh>
-        </geometry>
-      </collision>
-      <collision name='torso_link_fixed_joint_lump__logo_link_collision_2'>
-        <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/logo_link.STL</uri>
           </mesh>
         </geometry>
       </collision>
@@ -945,32 +942,6 @@
         <material>
           <diffuse>0.875 0.875 0.875 1</diffuse>
           <ambient>0.875 0.875 0.875 1</ambient>
-        </material>
-      </visual>
-      <visual name='torso_link_fixed_joint_lump__head_link_visual_1'>
-        <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/head_link.STL</uri>
-          </mesh>
-        </geometry>
-        <material>
-          <diffuse>0.25 0.25 0.25 1</diffuse>
-          <ambient>0.25 0.25 0.25 1</ambient>
-        </material>
-      </visual>
-      <visual name='torso_link_fixed_joint_lump__logo_link_visual_2'>
-        <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>1 1 1</scale>
-            <uri>model://g1_description/meshes/logo_link.STL</uri>
-          </mesh>
-        </geometry>
-        <material>
-          <diffuse>0.25 0.25 0.25 1</diffuse>
-          <ambient>0.25 0.25 0.25 1</ambient>
         </material>
       </visual>
       <sensor name='torso_imu' type='imu'>
@@ -992,6 +963,90 @@
           </linear_acceleration>
         </imu>
       </sensor>
+    </link>
+    <joint name='logo_joint' type='fixed'>
+      <pose relative_to='torso_link'>0.0039635 0 -0.043999999999999997 0 0 0</pose>
+      <parent>torso_link</parent>
+      <child>logo_link</child>
+    </joint>
+    <link name='logo_link'>
+      <pose relative_to='logo_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-07</iyy>
+          <iyz>0</iyz>
+          <izz>1e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='logo_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/logo_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='logo_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/logo_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <ambient>0.25 0.25 0.25 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='head_joint' type='fixed'>
+      <pose relative_to='torso_link'>0.0039635 0 -0.043999999999999997 0 0 0</pose>
+      <parent>torso_link</parent>
+      <child>head_link</child>
+    </joint>
+    <link name='head_link'>
+      <pose relative_to='head_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.005267 0.00029899999999999997 0.44986899999999996 0 0 0</pose>
+        <mass>1.036</mass>
+        <inertia>
+          <ixx>0.004085051</ixx>
+          <ixy>-2.543e-06</ixy>
+          <ixz>-6.9455000000000004e-05</ixz>
+          <iyy>0.004185212</iyy>
+          <iyz>-3.7259999999999999e-06</iyz>
+          <izz>0.001807911</izz>
+        </inertia>
+      </inertial>
+      <collision name='head_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/head_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='head_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://g1_description/meshes/head_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <ambient>0.25 0.25 0.25 1</ambient>
+        </material>
+      </visual>
     </link>
     <joint name='left_shoulder_pitch_joint' type='revolute'>
       <pose relative_to='torso_link'>0.0039563000000000003 0.10022 0.24778 0.27931000000000011 5.4949000000000032e-05 -0.00019159</pose>
@@ -1344,15 +1399,15 @@
     <link name='left_wrist_yaw_link'>
       <pose relative_to='left_wrist_yaw_joint'>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.070824430201051378 0.00019174529120036591 0.0016174161391889761 0 0 0</pose>
-        <mass>0.25457647</mass>
+        <pose>0.02200381568 0.00049485095999999998 0.00053861123000000002 0 0 0</pose>
+        <mass>0.084576470000000006</mass>
         <inertia>
-          <ixx>0.00015044517917257641</ixx>
-          <ixy>3.7602754090026117e-05</ixy>
-          <ixz>-2.9549415859057682e-06</ixz>
-          <iyy>0.00064311326853337463</iyy>
-          <iyz>3.7754842412915678e-06</iyz>
-          <izz>0.00056011394750397187</izz>
+          <ixx>4.929128828e-05</ixx>
+          <ixy>-4.5735494000000002e-07</ixy>
+          <ixz>4.4586759099999998e-06</ixz>
+          <iyy>5.9733381339999999e-05</iyy>
+          <iyz>4.3217198000000003e-07</iyz>
+          <izz>3.9280838259999998e-05</izz>
         </inertia>
       </inertial>
       <collision name='left_wrist_yaw_link_collision'>
@@ -1377,8 +1432,28 @@
           <ambient>0.875 0.875 0.875 1</ambient>
         </material>
       </visual>
-      <visual name='left_wrist_yaw_link_fixed_joint_lump__left_rubber_hand_visual_1'>
-        <pose>0.041500000000000002 0.0030000000000000001 0 0 0 0</pose>
+    </link>
+    <joint name='left_hand_palm_joint' type='fixed'>
+      <pose relative_to='left_wrist_yaw_link'>0.041500000000000002 0.0030000000000000001 0 0 0 0</pose>
+      <parent>left_wrist_yaw_link</parent>
+      <child>left_rubber_hand</child>
+    </joint>
+    <link name='left_rubber_hand'>
+      <pose relative_to='left_hand_palm_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.053613108080000003 -0.0029590524 0.0021541309099999999 0 0 0</pose>
+        <mass>0.17000000000000001</mass>
+        <inertia>
+          <ixx>0.00010099485234748</ixx>
+          <ixy>3.6185907905159998e-05</ixy>
+          <ixz>-7.4301518641999997e-07</ixz>
+          <iyy>0.00028135871571620998</iyy>
+          <iyz>3.3018974328600001e-06</iyz>
+          <izz>0.00021894770413513999</izz>
+        </inertia>
+      </inertial>
+      <visual name='left_rubber_hand_visual'>
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
@@ -1742,15 +1817,15 @@
     <link name='right_wrist_yaw_link'>
       <pose relative_to='right_wrist_yaw_joint'>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.070824430201051378 -0.00019174529120036591 0.0016174161391889761 0 0 0</pose>
-        <mass>0.25457647</mass>
+        <pose>0.02200381568 -0.00049485095999999998 0.00053861123000000002 0 0 0</pose>
+        <mass>0.084576470000000006</mass>
         <inertia>
-          <ixx>0.00015044517917257641</ixx>
-          <ixy>-3.7602754090026117e-05</ixy>
-          <ixz>-2.9549415859057682e-06</ixz>
-          <iyy>0.00064311326853337463</iyy>
-          <iyz>-3.7754842412915678e-06</iyz>
-          <izz>0.00056011394750397187</izz>
+          <ixx>4.929128828e-05</ixx>
+          <ixy>4.5735494000000002e-07</ixy>
+          <ixz>4.4586759099999998e-06</ixz>
+          <iyy>5.9733381339999999e-05</iyy>
+          <iyz>-4.3217198000000003e-07</iyz>
+          <izz>3.9280838259999998e-05</izz>
         </inertia>
       </inertial>
       <collision name='right_wrist_yaw_link_collision'>
@@ -1775,8 +1850,28 @@
           <ambient>0.875 0.875 0.875 1</ambient>
         </material>
       </visual>
-      <visual name='right_wrist_yaw_link_fixed_joint_lump__right_rubber_hand_visual_1'>
-        <pose>0.041500000000000002 -0.0030000000000000001 0 0 0 0</pose>
+    </link>
+    <joint name='right_hand_palm_joint' type='fixed'>
+      <pose relative_to='right_wrist_yaw_link'>0.041500000000000002 -0.0030000000000000001 0 0 0 0</pose>
+      <parent>right_wrist_yaw_link</parent>
+      <child>right_rubber_hand</child>
+    </joint>
+    <link name='right_rubber_hand'>
+      <pose relative_to='right_hand_palm_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.053613108080000003 0.0029590524 0.0021541309099999999 0 0 0</pose>
+        <mass>0.17000000000000001</mass>
+        <inertia>
+          <ixx>0.00010099485234748</ixx>
+          <ixy>-3.6185907905159998e-05</ixy>
+          <ixz>-7.4301518641999997e-07</ixz>
+          <iyy>0.00028135871571620998</iyy>
+          <iyz>-3.3018974328600001e-06</iyz>
+          <izz>0.00021894770413513999</izz>
+        </inertia>
+      </inertial>
+      <visual name='right_rubber_hand_visual'>
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
@@ -1795,22 +1890,10 @@
     <frame name='imu_in_pelvis' attached_to='imu_in_pelvis_joint'>
       <pose>0 0 0 0 0 0</pose>
     </frame>
-    <frame name='pelvis_contour_joint' attached_to='pelvis'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
-    <frame name='pelvis_contour_link' attached_to='pelvis_contour_joint'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
     <frame name='d435_joint' attached_to='torso_link'>
       <pose>0.057623500000000001 0.01753 0.42986999999999997 0 0.83077672394930091 0</pose>
     </frame>
     <frame name='d435_link' attached_to='d435_joint'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
-    <frame name='head_joint' attached_to='torso_link'>
-      <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-    </frame>
-    <frame name='head_link' attached_to='head_joint'>
       <pose>0 0 0 0 0 0</pose>
     </frame>
     <frame name='imu_in_torso_joint' attached_to='torso_link'>
@@ -1819,31 +1902,13 @@
     <frame name='imu_in_torso' attached_to='imu_in_torso_joint'>
       <pose>0 0 0 0 0 0</pose>
     </frame>
-    <frame name='logo_joint' attached_to='torso_link'>
-      <pose>0.0039635 0 -0.043999999999999997 0 0 0</pose>
-    </frame>
-    <frame name='logo_link' attached_to='logo_joint'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
     <frame name='mid360_joint' attached_to='torso_link'>
       <pose>0.00028350000000000001 3.0000000000000001e-05 0.41617999999999999 0 0.040142572795869531 0</pose>
     </frame>
     <frame name='mid360_link' attached_to='mid360_joint'>
       <pose>0 0 0 0 0 0</pose>
     </frame>
-    <frame name='left_hand_palm_joint' attached_to='left_wrist_yaw_link'>
-      <pose>0.041500000000000002 0.0030000000000000001 0 0 0 0</pose>
-    </frame>
-    <frame name='left_rubber_hand' attached_to='left_hand_palm_joint'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
-    <frame name='right_hand_palm_joint' attached_to='right_wrist_yaw_link'>
-      <pose>0.041500000000000002 -0.0030000000000000001 0 0 0 0</pose>
-    </frame>
-    <frame name='right_rubber_hand' attached_to='right_hand_palm_joint'>
-      <pose>0 0 0 0 0 0</pose>
-    </frame>
-    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+  <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
       <topic>/g1/joint_states</topic>
       <joint_name>left_hip_pitch_joint</joint_name>
       <joint_name>left_hip_roll_joint</joint_name>
@@ -1875,35 +1940,43 @@
       <joint_name>right_wrist_pitch_joint</joint_name>
       <joint_name>right_wrist_yaw_joint</joint_name>
     </plugin>
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <dimensions>3</dimensions>
+      <odom_frame>g1/odom</odom_frame>
+      <robot_base_frame>pelvis</robot_base_frame>
+      <odom_publish_frequency>400</odom_publish_frequency>
+      <odom_topic>/g1/pelvis/odometry</odom_topic>
+      <xyz_offset>0.04525 0 -0.08339</xyz_offset>
+    </plugin>
 
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_pitch_joint</joint_name><topic>/g1/cmd_pos/left_hip_pitch_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_roll_joint</joint_name><topic>/g1/cmd_pos/left_hip_roll_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_yaw_joint</joint_name><topic>/g1/cmd_pos/left_hip_yaw_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_knee_joint</joint_name><topic>/g1/cmd_pos/left_knee_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_ankle_pitch_joint</joint_name><topic>/g1/cmd_pos/left_ankle_pitch_joint</topic><p_gain>45</p_gain><i_gain>0</i_gain><d_gain>2.5</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_ankle_roll_joint</joint_name><topic>/g1/cmd_pos/left_ankle_roll_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>8</d_gain><cmd_min>-10</cmd_min><cmd_max>10</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_pitch_joint</joint_name><topic>/g1/cmd_pos/right_hip_pitch_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_roll_joint</joint_name><topic>/g1/cmd_pos/right_hip_roll_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_yaw_joint</joint_name><topic>/g1/cmd_pos/right_hip_yaw_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_knee_joint</joint_name><topic>/g1/cmd_pos/right_knee_joint</topic><p_gain>70</p_gain><i_gain>0</i_gain><d_gain>5</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_ankle_pitch_joint</joint_name><topic>/g1/cmd_pos/right_ankle_pitch_joint</topic><p_gain>45</p_gain><i_gain>0</i_gain><d_gain>2.5</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_ankle_roll_joint</joint_name><topic>/g1/cmd_pos/right_ankle_roll_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>8</d_gain><cmd_min>-10</cmd_min><cmd_max>10</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_yaw_joint</joint_name><topic>/g1/cmd_pos/waist_yaw_joint</topic><p_gain>100</p_gain><i_gain>0</i_gain><d_gain>1</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_roll_joint</joint_name><topic>/g1/cmd_pos/waist_roll_joint</topic><p_gain>80</p_gain><i_gain>0</i_gain><d_gain>1</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_pitch_joint</joint_name><topic>/g1/cmd_pos/waist_pitch_joint</topic><p_gain>80</p_gain><i_gain>0</i_gain><d_gain>1</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_pitch_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_pitch_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_roll_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_roll_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_yaw_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_yaw_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_elbow_joint</joint_name><topic>/g1/cmd_pos/left_elbow_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_roll_joint</joint_name><topic>/g1/cmd_pos/left_wrist_roll_joint</topic><p_gain>40</p_gain><i_gain>0</i_gain><d_gain>0.5</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_pitch_joint</joint_name><topic>/g1/cmd_pos/left_wrist_pitch_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>0.3</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_yaw_joint</joint_name><topic>/g1/cmd_pos/left_wrist_yaw_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>0.3</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_pitch_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_pitch_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_roll_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_roll_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_yaw_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_yaw_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_elbow_joint</joint_name><topic>/g1/cmd_pos/right_elbow_joint</topic><p_gain>60</p_gain><i_gain>0</i_gain><d_gain>0.8</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_roll_joint</joint_name><topic>/g1/cmd_pos/right_wrist_roll_joint</topic><p_gain>40</p_gain><i_gain>0</i_gain><d_gain>0.5</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_pitch_joint</joint_name><topic>/g1/cmd_pos/right_wrist_pitch_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>0.3</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_yaw_joint</joint_name><topic>/g1/cmd_pos/right_wrist_yaw_joint</topic><p_gain>20</p_gain><i_gain>0</i_gain><d_gain>0.3</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_pitch_joint</joint_name><topic>/g1/cmd_pos/left_hip_pitch_joint</topic><p_gain>44.11</p_gain><i_gain>0</i_gain><d_gain>2.81</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_roll_joint</joint_name><topic>/g1/cmd_pos/left_hip_roll_joint</topic><p_gain>148.56</p_gain><i_gain>0</i_gain><d_gain>9.46</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_hip_yaw_joint</joint_name><topic>/g1/cmd_pos/left_hip_yaw_joint</topic><p_gain>44.11</p_gain><i_gain>0</i_gain><d_gain>2.81</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_knee_joint</joint_name><topic>/g1/cmd_pos/left_knee_joint</topic><p_gain>148.56</p_gain><i_gain>0</i_gain><d_gain>9.46</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_ankle_pitch_joint</joint_name><topic>/g1/cmd_pos/left_ankle_pitch_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_ankle_roll_joint</joint_name><topic>/g1/cmd_pos/left_ankle_roll_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-10</cmd_min><cmd_max>10</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_pitch_joint</joint_name><topic>/g1/cmd_pos/right_hip_pitch_joint</topic><p_gain>44.11</p_gain><i_gain>0</i_gain><d_gain>2.81</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_roll_joint</joint_name><topic>/g1/cmd_pos/right_hip_roll_joint</topic><p_gain>148.56</p_gain><i_gain>0</i_gain><d_gain>9.46</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_hip_yaw_joint</joint_name><topic>/g1/cmd_pos/right_hip_yaw_joint</topic><p_gain>44.11</p_gain><i_gain>0</i_gain><d_gain>2.81</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_knee_joint</joint_name><topic>/g1/cmd_pos/right_knee_joint</topic><p_gain>148.56</p_gain><i_gain>0</i_gain><d_gain>9.46</d_gain><cmd_min>-139</cmd_min><cmd_max>139</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_ankle_pitch_joint</joint_name><topic>/g1/cmd_pos/right_ankle_pitch_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_ankle_roll_joint</joint_name><topic>/g1/cmd_pos/right_ankle_roll_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-10</cmd_min><cmd_max>10</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_yaw_joint</joint_name><topic>/g1/cmd_pos/waist_yaw_joint</topic><p_gain>44.11</p_gain><i_gain>0</i_gain><d_gain>2.81</d_gain><cmd_min>-88</cmd_min><cmd_max>88</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_roll_joint</joint_name><topic>/g1/cmd_pos/waist_roll_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>waist_pitch_joint</joint_name><topic>/g1/cmd_pos/waist_pitch_joint</topic><p_gain>34.44</p_gain><i_gain>0</i_gain><d_gain>2.19</d_gain><cmd_min>-50</cmd_min><cmd_max>50</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_pitch_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_pitch_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_roll_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_roll_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_shoulder_yaw_joint</joint_name><topic>/g1/cmd_pos/left_shoulder_yaw_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_elbow_joint</joint_name><topic>/g1/cmd_pos/left_elbow_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_roll_joint</joint_name><topic>/g1/cmd_pos/left_wrist_roll_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_pitch_joint</joint_name><topic>/g1/cmd_pos/left_wrist_pitch_joint</topic><p_gain>5.00</p_gain><i_gain>0</i_gain><d_gain>0.50</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>left_wrist_yaw_joint</joint_name><topic>/g1/cmd_pos/left_wrist_yaw_joint</topic><p_gain>5.00</p_gain><i_gain>0</i_gain><d_gain>0.50</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_pitch_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_pitch_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_roll_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_roll_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_shoulder_yaw_joint</joint_name><topic>/g1/cmd_pos/right_shoulder_yaw_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_elbow_joint</joint_name><topic>/g1/cmd_pos/right_elbow_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_roll_joint</joint_name><topic>/g1/cmd_pos/right_wrist_roll_joint</topic><p_gain>17.22</p_gain><i_gain>0</i_gain><d_gain>1.10</d_gain><cmd_min>-25</cmd_min><cmd_max>25</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_pitch_joint</joint_name><topic>/g1/cmd_pos/right_wrist_pitch_joint</topic><p_gain>5.00</p_gain><i_gain>0</i_gain><d_gain>0.50</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController"><joint_name>right_wrist_yaw_joint</joint_name><topic>/g1/cmd_pos/right_wrist_yaw_joint</topic><p_gain>5.00</p_gain><i_gain>0</i_gain><d_gain>0.50</d_gain><cmd_min>-5</cmd_min><cmd_max>5</cmd_max></plugin>
   </model>
 </sdf>

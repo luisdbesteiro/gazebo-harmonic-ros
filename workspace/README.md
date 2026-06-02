@@ -16,9 +16,9 @@ Ficheros YAML para `ros_gz_bridge`. Definen el mapeo entre topics de Gazebo y to
 
 Modelos SDF y descripciones del robot G1 usados por Gazebo.
 
-- `g1_29dof/`: modelo principal del G1 con 29 grados de libertad y base libre.
-- `g1_demo_cmd_pos/`: variante fija levantada sobre el suelo para demos de control por posicion.
-- `g1_demo_cmd_vel/`: variante fija levantada sobre el suelo para demos de control por velocidad.
+- `g1_demo_cmd_vel/`: demo con cadera fija y controladores de velocidad. Es util para visualizar el modelo y jugar con las articulaciones definidas, dejando de lado la estabilidad global.
+- `g1_low_level/`: modelo libre con controladores de posicion por articulacion expuestos a ROS 2 en `/g1/cmd_pos/<joint_name>`. Es el modelo recomendado para depuracion y para ejecutar los nodos ROS de `policy_control`.
+- `g1_policy_plugin/`: modelo libre que carga `policy_gz_system`. Es la ruta final prevista: consume `/cmd_vel` desde ROS 2 y ejecuta la politica dentro de Gazebo, publicando targets directamente por Gazebo Transport.
 - `g1_description/`: [descripcion oficial de Unitree](https://github.com/unitreerobotics/unitree_ros/tree/master/robots/g1_description) utilizada como base: URDF, mallas STL, variantes del robot y recursos asociados.
 
 ### `results/`
@@ -55,7 +55,7 @@ Componentes principales:
 
 - launch `g1_sim_and_bridge.launch.py`: arranca `gz sim`, hace spawn del robot `g1` y levanta el bridge adecuado.
 - alias de mundos: `empty`, `rubicon`, `depot`.
-- alias de modelos: `g1`, `g1_demo_vel`, `g1_demo_pos`, `none`.
+- alias de modelos: `g1_policy_plugin`, `g1_low_level`, `g1_demo`, `none`.
 - alias de bridges: `clock`, `g1_vel`, `g1_pos`.
 - nodo `demo_cmd_vel_movements`: publica una secuencia ciclica de comandos de velocidad sobre `/g1/cmd_vel/*`.
 
@@ -80,6 +80,8 @@ Nodos incluidos:
 
 - `observation_publisher`: construye y publica la observacion `obs[99]` en `/g1/observation`.
 - `policy_inference`: carga la politica ONNX, ejecuta inferencia y publica objetivos articulares en `/g1/cmd_pos/<joint_name>` y la accion previa en `/g1/last_action`.
+- `policy_controller_cpp`: lazo integrado en C++ para depurar la politica con `g1_low_level`.
+- `policy_gz_system`: plugin de Gazebo usado por `g1_policy_plugin`, pensado como ruta final cuando la politica este verificada.
 
 Entradas principales de `observation_publisher`:
 
@@ -100,7 +102,7 @@ Notas operativas:
 
 - el vector de observacion sigue el orden articular definido en `policy_control/constants.py`
 - la ruta ONNX por defecto apunta a `workspace/results/2026-01-26_10-42-02.onnx`
-- en las pruebas actuales se recomienda lanzar `policy_inference` con `wrist_scale_factor:=0.0`
+- en las pruebas actuales se recomienda usar `wrist_scale_factor:=0.0` con `policy_controller_cpp`, `policy_inference` o el plugin de Gazebo
 - `empty_world.sdf` sigue siendo la referencia mas estable para comparar el comportamiento de la politica
 
 ## Uso basico
@@ -123,13 +125,18 @@ Mundo vacio en pausa (recomendado):
 ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
 ```
 
+Ese comando usa `g1_policy_plugin` por defecto. Para depurar desde nodos ROS 2, lanza explicitamente el modelo low level:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_low_level run:=false
+```
+
 ### 3. Ejecutar el pipeline de politica
 
 Con la simulacion activa y el bridge de posicion disponible. En otras terminales dentro del docker:
 
 ```bash
-ros2 run policy_control observation_publisher
-ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
+ros2 run policy_control policy_controller_cpp --ros-args -p wrist_scale_factor:=0.0
 ```
 
 ### 4. Comprobaciones rapidas
@@ -143,5 +150,5 @@ gz service -l
 ## Documentacion relacionada
 
 - `ros2_ws/src/g1_sim_bringup/README.md`: uso detallado del launch y aliases actuales.
-- `G1_SIM_GUIDE.md`: guia operativa historica de simulacion.
+- `ros2_ws/src/policy_control/README.md`: nodos ROS, plugin de Gazebo, parametros de politica y flujo recomendado para cada variante.
 - `models/g1_description/README.md`: informacion especifica sobre la descripcion del robot.

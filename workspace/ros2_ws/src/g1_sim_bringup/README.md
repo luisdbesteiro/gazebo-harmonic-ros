@@ -13,8 +13,8 @@ ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py
 Por defecto:
 
 - abre `/workspace/worlds/empty_world.sdf`
-- spawnea `/workspace/models/g1_29dof/model.sdf` con nombre `g1`
-- usa `/workspace/bridges/g1_pos_bridge.yaml`
+- spawnea `/workspace/models/g1_policy_plugin/model.sdf` con nombre `g1`
+- usa `/workspace/bridges/clock_bridge.yaml`, porque el plugin gestiona internamente los comandos articulares
 - lanza servidor y GUI de Gazebo
 - arranca la simulacion en marcha salvo que se use `run:=false`
 
@@ -32,9 +32,9 @@ Por defecto:
 
 | Alias | Ruta | Uso |
 | --- | --- | --- |
-| `g1` | `/workspace/models/g1_29dof/model.sdf` | Robot G1 libre, usado por defecto. |
-| `g1_demo_vel` | `/workspace/models/g1_demo_cmd_vel/model.sdf` | Variante fija para demos por velocidad. |
-| `g1_demo_pos` | `/workspace/models/g1_demo_cmd_pos/model.sdf` | Variante fija para demos por posicion. |
+| `g1_policy_plugin` | `/workspace/models/g1_policy_plugin/model.sdf` | Modelo libre con `policy_gz_system`; usado por defecto y pensado como ruta final cuando la politica este validada. |
+| `g1_low_level` | `/workspace/models/g1_low_level/model.sdf` | Modelo libre con controladores por articulacion expuestos a ROS; recomendado para depuracion y para los nodos ROS de `policy_control`. |
+| `g1_demo` | `/workspace/models/g1_demo_cmd_vel/model.sdf` | Demo con cadera fija para visualizar el modelo y mover articulaciones sin evaluar estabilidad. |
 | `none` | sin modelo | Arranca solo Gazebo y el bridge. |
 
 ### Bridges
@@ -42,14 +42,14 @@ Por defecto:
 | Alias | Ruta | Uso |
 | --- | --- | --- |
 | `auto` | inferido desde `robot_model` | Valor por defecto. |
-| `clock` | `/workspace/bridges/clock_bridge.yaml` | Solo `/clock`, usado si `robot_model:=none`. |
-| `g1_pos` | `/workspace/bridges/g1_pos_bridge.yaml` | Control por posicion en `/g1/cmd_pos/<joint_name>`. |
-| `g1_vel` | `/workspace/bridges/g1_vel_bridge.yaml` | Control por velocidad en `/g1/cmd_vel/<joint_name>`. |
+| `clock` | `/workspace/bridges/clock_bridge.yaml` | Solo `/clock`, usado si `robot_model:=none` o `robot_model:=g1_policy_plugin`. |
+| `g1_pos` | `/workspace/bridges/g1_pos_bridge.yaml` | Estado del G1 y control por posicion en `/g1/cmd_pos/<joint_name>`, usado con `g1_low_level`. |
+| `g1_vel` | `/workspace/bridges/g1_vel_bridge.yaml` | Estado del G1 y control por velocidad en `/g1/cmd_vel/<joint_name>`, usado con `g1_demo`. |
 
 ## Argumentos del launch
 
 - `world:=...`: alias de mundo o ruta absoluta a un SDF.
-- `robot_model:=...`: alias de modelo, ruta a `model.sdf` o `none`.
+- `robot_model:=...`: alias de modelo, ruta a `model.sdf` o `none`. El valor por defecto es `g1_policy_plugin`.
 - `bridge_config:=auto|...`: bridge inferido automaticamente, alias o ruta YAML.
 - `spawn_x`, `spawn_y`, `spawn_z`: posicion inicial del robot.
 - `gui:=true|false`: lanza o no el cliente grafico.
@@ -73,10 +73,16 @@ El resto de mundos usa la pose general por defecto:
 
 ## Ejemplos
 
-Mundo vacio en pausa:
+Mundo vacio con el robot basado en plugin:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py
+```
+
+Depuracion de politica desde nodos ROS, con controladores articulares expuestos:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_low_level run:=false
 ```
 
 Rubicon en pausa, usando la pose especial por defecto:
@@ -97,10 +103,10 @@ Arrancar solo Gazebo y `/clock`, sin spawnear robot:
 ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=none
 ```
 
-Demo de comandos por velocidad:
+Demo de comandos por velocidad con cadera fija:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo_vel spawn_z:=1.2
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_demo spawn_z:=1.2
 ros2 run g1_sim_bringup demo_cmd_vel_movements
 ```
 
@@ -114,7 +120,7 @@ Publicados por el robot G1:
 /g1/imu/torso
 ```
 
-En el modelo principal `g1` tambien se expone odometria de pelvis para `policy_control`:
+En el modelo `g1_low_level` tambien se expone odometria de pelvis para `policy_control`:
 
 ```text
 /g1/pelvis/odometry
@@ -125,6 +131,8 @@ Comandos articulares por posicion:
 ```text
 /g1/cmd_pos/<joint_name>
 ```
+
+Estos topics solo aparecen en ROS cuando se usa `robot_model:=g1_low_level` con el bridge `g1_pos`. Con `robot_model:=g1_policy_plugin`, los targets se publican internamente por Gazebo Transport desde el plugin.
 
 Comandos articulares por velocidad para la demo fija:
 

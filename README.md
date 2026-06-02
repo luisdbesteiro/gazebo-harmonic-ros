@@ -80,17 +80,13 @@ colcon build --symlink-install
 source /workspace/ros2_ws/install/setup.bash
 ```
 
-Lanzar la simulacion por defecto:
-
-```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py
-```
-
-Para arrancar cargado pero en pausa:
+Lanzar la simulacion por defecto en pausa:
 
 ```bash
 ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py run:=false
 ```
+
+Por defecto se carga `g1_policy_plugin`, la variante final que ejecuta la politica dentro de Gazebo. Para depurar la politica desde nodos ROS 2, usa `robot_model:=g1_low_level`.
 
 ## Servicios Docker para ejecución con GPU
 
@@ -123,27 +119,40 @@ Usa solo uno de los servicios a la vez para evitar mezclar sesiones de Gazebo.
 El launch principal esta en `g1_sim_bringup`:
 
 ```bash
-ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py world:=empty robot_model:=g1 bridge_config:=auto
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py
 ```
 
 Aliases principales:
 
 - mundos: `empty`, `rubicon`, `depot`
-- modelos: `g1`, `g1_demo_vel`, `g1_demo_pos`, `none`
+- modelos: `g1_policy_plugin`, `g1_low_level`, `g1_demo`
 - bridges: `auto`, `clock`, `g1_vel`, `g1_pos`
 
 Para mas ejemplos y parametros, consulta [g1_sim_bringup/README.md](workspace/ros2_ws/src/g1_sim_bringup/README.md).
 
 ## Politica ONNX
 
-El paquete `policy_control` publica observaciones `obs[99]`, ejecuta inferencia ONNX y envia objetivos articulares por posicion.
+El paquete `policy_control` recoge observaciones `obs[99]`, ejecuta inferencia ONNX y envia objetivos articulares por posicion. Esto puede hacerse vía nodos ROS o usando un plugin de control directamente sobre el modelo en Gazebo (versión más avanzada pero más hermética).
 
-Flujo minimo, en terminales dentro del contenedor y con la simulacion activa:
+Flujo minimo para depurar con nodos ROS, en terminales dentro del contenedor:
 
 ```bash
-ros2 run policy_control observation_publisher
-ros2 run policy_control policy_inference --ros-args -p wrist_scale_factor:=0.0
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_low_level run:=false
 ```
+
+En otra terminal:
+
+```bash
+ros2 run policy_control policy_controller_cpp --ros-args -p wrist_scale_factor:=0.0
+```
+
+Si se lanza la simulación con:
+
+```bash
+ros2 launch g1_sim_bringup g1_sim_and_bridge.launch.py robot_model:=g1_policy_plugin
+```
+
+Se carga el modelo con el control con red neuronal de forma automática, eliminando procesos de comunicación ROS y aligerando el coste del control básico para aplicaciones más avanzadas.
 
 La guia completa de topics, parametros y estado por mundos esta en [policy_control/README.md](workspace/ros2_ws/src/policy_control/README.md).
 
